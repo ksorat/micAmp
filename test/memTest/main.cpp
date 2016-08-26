@@ -3,8 +3,8 @@
 //Allocate contiguous 2D array, x-fer to MIC, do simple calculation and bring back
 //For SuperMIC
 //
-#define DIMX 100
-#define DIMY 100
+#define DIMX 10
+#define DIMY 10
 #define DIMZ 20
 #define DIMV 6
 
@@ -59,8 +59,10 @@ int main() {
 
 	printf("Begin transfer/calculation\n");
 	//Xfer and calculate
-	#pragma offload target(MIC0) inout( ****Data : length(Ntot) RETAIN )
+	#pragma offload target(MIC0) inout( Data : length(Ntot) RETAIN )
 	{
+		printf("Data[0][0][0][0] = %f\n",Data[0][0][0][0]);
+		
 		/*#pragma omp parallel for private(s,c) collapse(3)
 		for (n=0;n<DIMV;n++) {
 			for (k=0;k<DIMZ;k++) {
