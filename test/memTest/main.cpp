@@ -32,7 +32,7 @@ MICTYPE RealP4 Data;
 MICTYPE RealP4 DataPhi;
 
 int main() {
-	Real *Start;
+	Real *Start, *StartPhi;
 	int i,j,k,n, Ntot;
 	Real s, c, cumsum;
 	//Setup
@@ -41,13 +41,14 @@ int main() {
 
 	printf("Alloc on host\n");
 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
+	Start = &(Data[0][0][0][0]);
 	printf("Finish alloc on host\n");
 
 	printf("Start alloc on MIC\n");
-	#pragma offload target(MIC0) nocopy(DataPhi : REUSE)
+	#pragma offload target(MIC0) nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
 	{
 		DataPhi = Create4Array(DIMV,DIMZ,DIMY,DIMX);
-
+		StartPhi = &(DataPhi[0][0][0][0]);
 	}
 	// #pragma offload target(MIC0) nocopy( Data : REUSE)
 	// {
@@ -67,12 +68,14 @@ int main() {
 		}
 	}
 	Data[0][0][0][0] = -1.0;
+
 	printf("Begin transfer/calculation\n");
 	//Xfer and calculate
 	//#pragma offload target(MIC0) inout( Data : length(Ntot) RETAIN )
-	#pragma offload target(MIC0) in( ***Data : length(Ntot) into(***DataPhi) REUSE )
+	//#pragma offload target(MIC0) in( ***Data : length(Ntot) into(***DataPhi) REUSE )
+	#pragma offload target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE )
 	{
-		printf("Start = %f\n", DataPhi[0][0][0][0]);
+		printf("Init = %f\n", DataPhi[0][0][0][0]);
 
 		/*#pragma omp parallel for private(s,c) collapse(3)
 		for (n=0;n<DIMV;n++) {
