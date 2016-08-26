@@ -1,7 +1,8 @@
 //Test of memory allocation/transfer to MIC
 
 //Allocate contiguous 2D array, x-fer to MIC, do simple calculation and bring back
-
+//For SuperMIC
+//
 #define DIMX 100
 #define DIMY 100
 #define DIMZ 20
@@ -58,10 +59,6 @@ int main() {
 
 	printf("Begin transfer/calculation\n");
 	//Xfer and calculate
-	//#pragma offload target(mic:0) inout(Data[0:DIMX][0:DIMY])
-	//#pragma offload target(mic:0) inout( *Data[0:DIMX] : length(DIMY) )
-	//#pragma offload target(mic:0) inout( Data : length(DIMX*DIMY) ALLOC )	
-	//#pragma offload target(mic:0) inout( Data : length(DIMX*DIMY) ALLOC )	
 	#pragma offload target(MIC0) inout( ****Data : length(Ntot) REUSE )
 	{
 		#pragma omp parallel for private(s,c) collapse(3)
@@ -93,7 +90,7 @@ int main() {
 		}
 	}
 
-	printf("Checksum = %f\n", cumsum/(DIMX*DIMY*DIMZ*DIMV));
+	printf("Checksum = %e\n", cumsum/(DIMX*DIMY*DIMZ*DIMV) - 1.0);
 	Kill4Array(Data);
 	return 0;
 }
