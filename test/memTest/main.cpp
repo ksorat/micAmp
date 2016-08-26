@@ -16,7 +16,7 @@
 #define FREE  alloc_if(0) free_if(1)
 #define RETAIN alloc_if(1) free_if(0)
 
-#define MICFUNC __declspec(target(mic))
+#define MICTYPE __declspec(target(mic))
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,11 +25,14 @@
 typedef double Real;
 typedef Real **** RealP4;
 
-MICFUNC RealP4 Create4Array(int N1, int N2, int N3, int N4);
-MICFUNC void Kill4Array(RealP4 ToDie);
+MICTYPE RealP4 Create4Array(int N1, int N2, int N3, int N4);
+MICTYPE void Kill4Array(RealP4 ToDie);
+
+RealP4 Data;
+MICTYPE RealP4 DataPhi;
 
 int main() {
-	Real ****Data;
+	Real *Start;
 	int i,j,k,n, Ntot;
 	Real s, c, cumsum;
 	//Setup
@@ -39,12 +42,17 @@ int main() {
 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	printf("Finish alloc on host\n");
 
-	// printf("Start alloc on MIC\n");
+	printf("Start alloc on MIC\n");
+	#pragma offload target(MIC0) 
+	{
+		DataPhi = Create4Array(DIMV,DIMZ,DIMY,DIMX);
+	}
 	// #pragma offload target(MIC0) nocopy( Data : REUSE)
 	// {
 	// 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	// }
 	// printf("Finish alloc on MIC\n");
+
 
 	printf("Initialize data on host\n");
 	for (n=0;n<DIMV;n++) {
@@ -59,9 +67,10 @@ int main() {
 	Data[0][0][0][0] = -1.0;
 	printf("Begin transfer/calculation\n");
 	//Xfer and calculate
-	#pragma offload target(MIC0) inout( Data : length(Ntot) RETAIN )
+	//#pragma offload target(MIC0) inout( Data : length(Ntot) RETAIN )
+	#pragma offload target(MIC0) in( Data : length(Ntot) into DataPhi REUSE )
 	{
-		printf("Start = %f\n", Data);
+		printf("Start = %f\n", DataPhi[0][0][0][0]);
 
 		/*#pragma omp parallel for private(s,c) collapse(3)
 		for (n=0;n<DIMV;n++) {
