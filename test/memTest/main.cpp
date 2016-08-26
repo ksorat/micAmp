@@ -38,12 +38,13 @@ int main() {
 	//Setup
 
 	Ntot = DIMX*DIMY*DIMZ*DIMV;
+
 	printf("Alloc on host\n");
 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	printf("Finish alloc on host\n");
 
 	printf("Start alloc on MIC\n");
-	#pragma offload target(MIC0) nocopy(DataPhi : REUSE)
+	#pragma offload target(MIC0) out(DataPhi : REUSE)
 	{
 		DataPhi = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	}
