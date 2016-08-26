@@ -61,7 +61,7 @@ int main() {
 	//Xfer and calculate
 	#pragma offload target(MIC0) inout( Data : length(Ntot) RETAIN )
 	{
-		printf("Start = %f\n", ****Data);
+		//printf("Start = %f\n", ****Data);
 
 		/*#pragma omp parallel for private(s,c) collapse(3)
 		for (n=0;n<DIMV;n++) {
