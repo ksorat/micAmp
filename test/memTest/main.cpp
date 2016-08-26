@@ -62,7 +62,7 @@ int main() {
 	#pragma offload target(MIC0) inout( Data : length(Ntot) RETAIN )
 	{
 		Real *Start;
-		Start = ****Data;
+		Start = ***Data;
 		printf("Start = %f\n", Start[0]);
 
 		/*#pragma omp parallel for private(s,c) collapse(3)
