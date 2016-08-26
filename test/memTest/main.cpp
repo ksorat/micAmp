@@ -28,7 +28,7 @@ typedef Real **** RealP4;
 MICTYPE RealP4 Create4Array(int N1, int N2, int N3, int N4);
 MICTYPE void Kill4Array(RealP4 ToDie);
 
-RealP4 Data;
+MICTYPE RealP4 Data;
 MICTYPE RealP4 DataPhi;
 MICTYPE Real *Start;
 MICTYPE Real *StartPhi;
