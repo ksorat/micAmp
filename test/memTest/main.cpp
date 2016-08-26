@@ -39,12 +39,12 @@ int main() {
 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	printf("Finish alloc on host\n");
 
-	printf("Start alloc on MIC\n");
-	#pragma offload target(MIC0) nocopy( Data : REUSE)
-	{
-		Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
-	}
-	printf("Finish alloc on MIC\n");
+	// printf("Start alloc on MIC\n");
+	// #pragma offload target(MIC0) nocopy( Data : REUSE)
+	// {
+	// 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
+	// }
+	// printf("Finish alloc on MIC\n");
 
 	printf("Initialize data on host\n");
 	for (n=0;n<DIMV;n++) {
@@ -100,32 +100,30 @@ int main() {
 //Creates array of dimension Data4D[N1][N2][N3][N4]
 RealP4 Create4Array(int N1, int N2, int N3, int N4) {
 
-	#pragma omp single 
-	{
-		int n,i,j;
-		int ind1, ind2, ind3;
 	
-		RealP4 Data4D   = (Real ****)_mm_malloc(sizeof(Real****)*N1,       ALIGN);
-		Data4D[0]       = (Real ***) _mm_malloc(sizeof(Real***)*N1*N2,     ALIGN);
-		Data4D[0][0]    = (Real **)  _mm_malloc(sizeof(Real**)*N1*N2*N3,   ALIGN);
-		Data4D[0][0][0] = (Real *)   _mm_malloc(sizeof(Real*)*N1*N2*N3*N4, ALIGN);	
-	
-		for(n=0;n<N1;n++) {
-			ind1 = n*N2;
-			Data4D[n] = &Data4D[0][ind1];
-			for(i=0;i<N2;i++) {
-				ind2 = n*(N2*N3) + i*N3;
-				Data4D[n][i] = &Data4D[0][0][ind2];
-				for(j=0;j<N3;j++) {
-					ind3 = n*(N2*N3*N4) + i*(N3*N4) + j*N4;
-					Data4D[n][i][j] = &Data4D[0][0][0][ind3];
-	
-				}
+	int n,i,j;
+	int ind1, ind2, ind3;
+
+	RealP4 Data4D   = (Real ****)_mm_malloc(sizeof(Real****)*N1,       ALIGN);
+	Data4D[0]       = (Real ***) _mm_malloc(sizeof(Real***)*N1*N2,     ALIGN);
+	Data4D[0][0]    = (Real **)  _mm_malloc(sizeof(Real**)*N1*N2*N3,   ALIGN);
+	Data4D[0][0][0] = (Real *)   _mm_malloc(sizeof(Real*)*N1*N2*N3*N4, ALIGN);	
+
+	for(n=0;n<N1;n++) {
+		ind1 = n*N2;
+		Data4D[n] = &Data4D[0][ind1];
+		for(i=0;i<N2;i++) {
+			ind2 = n*(N2*N3) + i*N3;
+			Data4D[n][i] = &Data4D[0][0][ind2];
+			for(j=0;j<N3;j++) {
+				ind3 = n*(N2*N3*N4) + i*(N3*N4) + j*N4;
+				Data4D[n][i][j] = &Data4D[0][0][0][ind3];
+
 			}
 		}
+	}
 
 	return Data4D;
-	}
 }
 
 void Kill4Array(RealP4 ToDie) {
