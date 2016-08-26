@@ -28,7 +28,7 @@ typedef Real **** RealP4;
 MICTYPE RealP4 Create4Array(int N1, int N2, int N3, int N4);
 MICTYPE void Kill4Array(RealP4 ToDie);
 
-RealP4 Data;
+MICTYPE RealP4 Data;
 MICTYPE RealP4 DataPhi;
 
 int main() {
@@ -68,7 +68,7 @@ int main() {
 	printf("Begin transfer/calculation\n");
 	//Xfer and calculate
 	//#pragma offload target(MIC0) inout( Data : length(Ntot) RETAIN )
-	#pragma offload target(MIC0) in( Data : length(Ntot) into DataPhi REUSE )
+	#pragma offload target(MIC0) in( Data : length(Ntot) into(DataPhi) REUSE )
 	{
 		printf("Start = %f\n", DataPhi[0][0][0][0]);
 
