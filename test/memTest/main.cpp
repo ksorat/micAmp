@@ -73,6 +73,10 @@ int main() {
 		}
 	}
 	Data[0][0][0][0] = -1.0;
+	for (n=0;n<Ntot;n++) {
+		printf("Host Val[%d] = %f\n",n,Start[n]);
+		fflush(0);
+	}
 
 	// printf("Begin transfer\n");
 	// //#pragma offload_transfer target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE )
