@@ -40,7 +40,7 @@ int main() {
 	printf("Finish alloc on host\n");
 
 	printf("Start alloc on MIC\n");
-	#pragma offload target(MIC0) 
+	#pragma offload target(MIC0) nocopy( Data : REUSE)
 	{
 		Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	}
