@@ -87,7 +87,7 @@ int main() {
 	{
 
 		//printf("Init = %f\n", DataPhi[0][0][0][0]);
-		StartPhi = (Real *) ***Data;
+		StartPhi = & (****Data);
 		for (n=0;n<Ntot;n++) {
 			printf("Val[%d] = %f\n",n,StartPhi[n]);
 			fflush(0);
