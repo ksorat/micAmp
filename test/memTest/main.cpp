@@ -70,11 +70,14 @@ int main() {
 	}
 	Data[0][0][0][0] = -1.0;
 
-	printf("Begin transfer/calculation\n");
+	printf("Begin transfer\n");
+	#pragma offload_transfer target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE )
+	printf("End transfer\n");
+	
 	//Xfer and calculate
 	//#pragma offload target(MIC0) inout( Data : length(Ntot) RETAIN )
 	//#pragma offload target(MIC0) in( ***Data : length(Ntot) into(***DataPhi) REUSE )
-	#pragma offload target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE ) nocopy(DataPhi : REUSE)
+	#pragma offload target(MIC0) nocopy(DataPhi : REUSE)
 	{
 		printf("Init = %f\n", DataPhi[0][0][0][0]);
 
