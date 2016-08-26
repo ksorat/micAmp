@@ -3,10 +3,10 @@
 //Allocate contiguous 2D array, x-fer to MIC, do simple calculation and bring back
 //For SuperMIC
 //
-#define DIMX 10
-#define DIMY 10
-#define DIMZ 20
-#define DIMV 6
+#define DIMX 4
+#define DIMY 3
+#define DIMZ 5
+#define DIMV 2
 
 #define ALIGN 64
 
@@ -34,7 +34,7 @@ MICTYPE Real *Start;
 MICTYPE Real *StartPhi;
 
 int main() {
-	int i,j,k,n, Ntot;
+	int i,j,k,n, nCum, Ntot;
 	Real s, c, cumsum;
 	//Setup
 
@@ -60,11 +60,14 @@ int main() {
 
 
 	printf("Initialize data on host\n");
+	nCum = 0;
 	for (n=0;n<DIMV;n++) {
 		for (k=0;k<DIMZ;k++) {
 			for (j=0;j<DIMY;j++) {
 				for (i=0;i<DIMX;i++) {
 					Data[n][k][j][i] = 1.0*n*k*j*i;
+					Data[n][k][j][i] = nCum;
+					nCum++;
 				}
 			}
 		}
