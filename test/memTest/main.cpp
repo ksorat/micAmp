@@ -50,6 +50,7 @@ int main() {
 	{
 		DataPhi = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 		StartPhi = &(DataPhi[0][0][0][0]);
+
 	}
 	// #pragma offload target(MIC0) nocopy( Data : REUSE)
 	// {
@@ -71,9 +72,10 @@ int main() {
 	Data[0][0][0][0] = -1.0;
 
 	printf("Begin transfer\n");
-	#pragma offload_transfer target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE )
+	//#pragma offload_transfer target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE )
+	#pragma offload target(MIC0) inout( Data : length(Ntot) into(DataPhi) REUSE )
 	printf("End transfer\n");
-	
+
 	//Xfer and calculate
 	//#pragma offload target(MIC0) inout( Data : length(Ntot) RETAIN )
 	//#pragma offload target(MIC0) in( ***Data : length(Ntot) into(***DataPhi) REUSE )
