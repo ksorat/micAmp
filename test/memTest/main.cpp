@@ -44,9 +44,10 @@ int main() {
 	printf("Finish alloc on host\n");
 
 	printf("Start alloc on MIC\n");
-	#pragma offload target(MIC0) out(DataPhi : REUSE)
+	#pragma offload target(MIC0) nocopy(DataPhi : REUSE)
 	{
 		DataPhi = Create4Array(DIMV,DIMZ,DIMY,DIMX);
+
 	}
 	// #pragma offload target(MIC0) nocopy( Data : REUSE)
 	// {
@@ -69,7 +70,7 @@ int main() {
 	printf("Begin transfer/calculation\n");
 	//Xfer and calculate
 	//#pragma offload target(MIC0) inout( Data : length(Ntot) RETAIN )
-	#pragma offload target(MIC0) in( Data : length(Ntot) into(DataPhi) REUSE )
+	#pragma offload target(MIC0) in( Data[0][0][0] : length(Ntot) into(DataPhi[0][0][0]) REUSE )
 	{
 		printf("Start = %f\n", DataPhi[0][0][0][0]);
 
