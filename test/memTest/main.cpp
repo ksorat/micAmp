@@ -80,14 +80,21 @@ int main() {
 
 	#pragma offload_transfer target(MIC0) in( Start : length(Ntot) RETAIN )
 
-	#pragma offload target(MIC0) nocopy( Start : REUSE )
+	#pragma offload target(MIC0) out( Start : length(Ntot) REUSE )
 	{
 		for (n=0;n<Ntot;n++) {
 			printf("Dev Val[%d] = %f\n",n,Start[n]);
 			fflush(0);
+			Start[n] = -1*Start[n];
 		}
 
 	}
+
+	for (n=0;n<Ntot;n++) {
+		printf("Final Host Val[%d] = %f\n",n,Start[n]);
+		fflush(0);
+	}
+
 	// printf("Begin transfer\n");
 	// //#pragma offload_transfer target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE )
 	// #pragma offload_transfer target(MIC0) in( Data : length(Ntot) into(DataPhi) REUSE )
