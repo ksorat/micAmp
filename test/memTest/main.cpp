@@ -73,7 +73,7 @@ int main() {
 	//Xfer and calculate
 	//#pragma offload target(MIC0) inout( Data : length(Ntot) RETAIN )
 	//#pragma offload target(MIC0) in( ***Data : length(Ntot) into(***DataPhi) REUSE )
-	#pragma offload target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE ) nocopy(DataPhi REUSE)
+	#pragma offload target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE ) nocopy(DataPhi : REUSE)
 	{
 		printf("Init = %f\n", DataPhi[0][0][0][0]);
 
