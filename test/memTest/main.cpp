@@ -75,9 +75,9 @@ int main() {
 	// //#pragma offload_transfer target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE )
 	// #pragma offload_transfer target(MIC0) in( Data : length(Ntot) into(DataPhi) REUSE )
 	// printf("End transfer\n");
-
+	#pragma offload_transfer target(MIC0) in( Data : length(Ntot) RETAIN ) 
 	//Xfer and calculate
-	#pragma offload target(MIC0) inout( Data : length(Ntot) RETAIN ) nocopy(StartPhi : REUSE)
+	#pragma offload target(MIC0) nocopy(Data : Reuse) nocopy(StartPhi : REUSE)
 	//#pragma offload target(MIC0) in( Data : length(Ntot) into(DataPhi) REUSE )
 	//#pragma offload target(MIC0) nocopy(DataPhi : REUSE)
 	{
