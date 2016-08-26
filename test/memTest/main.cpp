@@ -100,7 +100,8 @@ int main() {
 //Creates array of dimension Data4D[N1][N2][N3][N4]
 RealP4 Create4Array(int N1, int N2, int N3, int N4) {
 
-	#pragma omp single {
+	#pragma omp single 
+	{
 		int n,i,j;
 		int ind1, ind2, ind3;
 	
