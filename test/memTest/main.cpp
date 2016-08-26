@@ -39,8 +39,8 @@ int main() {
 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	printf("Finish alloc on host\n");
 
-	#pragma offload target(MIC0) 
 	printf("Start alloc on MIC\n");
+	#pragma offload target(MIC0) 
 	{
 		Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	}
@@ -59,7 +59,7 @@ int main() {
 
 	printf("Begin transfer/calculation\n");
 	//Xfer and calculate
-	#pragma offload target(MIC0) inout( ****Data : length(Ntot) REUSE )
+	#pragma offload target(MIC0) inout( Data : length(Ntot) REUSE )
 	{
 		#pragma omp parallel for private(s,c) collapse(3)
 		for (n=0;n<DIMV;n++) {
@@ -101,10 +101,10 @@ RealP4 Create4Array(int N1, int N2, int N3, int N4) {
 	int n,i,j;
 	int ind1, ind2, ind3;
 
-	RealP4 Data4D = (Real ****)_mm_malloc(sizeof(Real****)*N1, ALIGN);
-    Data4D[0] = (Real ***)_mm_malloc(sizeof(Real***)*N1*N2, ALIGN);
-    Data4D[0][0] = (Real **)_mm_malloc(sizeof(Real**)*N1*N2*N3, ALIGN);
-    Data4D[0][0][0] = (Real *)_mm_malloc(sizeof(Real*)*N1*N2*N3*N4, ALIGN);	
+	RealP4 Data4D   = (Real ****)_mm_malloc(sizeof(Real****)*N1,       ALIGN);
+	Data4D[0]       = (Real ***) _mm_malloc(sizeof(Real***)*N1*N2,     ALIGN);
+	Data4D[0][0]    = (Real **)  _mm_malloc(sizeof(Real**)*N1*N2*N3,   ALIGN);
+	Data4D[0][0][0] = (Real *)   _mm_malloc(sizeof(Real*)*N1*N2*N3*N4, ALIGN);	
 
 	for(n=0;n<N1;n++) {
 		ind1 = n*N2;
