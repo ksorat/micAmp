@@ -78,40 +78,41 @@ int main() {
 		fflush(0);
 	}
 
+	#pragma offload_transfer target(MIC0) in( Start : length(Ntot) RETAIN )
 	// printf("Begin transfer\n");
 	// //#pragma offload_transfer target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE )
 	// #pragma offload_transfer target(MIC0) in( Data : length(Ntot) into(DataPhi) REUSE )
 	// printf("End transfer\n");
-	#pragma offload_transfer target(MIC0) in( Data : length(Ntot) RETAIN ) 
-	//Xfer and calculate
+	// #pragma offload_transfer target(MIC0) in( Data : length(Ntot) RETAIN ) 
+	// //Xfer and calculate
 	
-	//#pragma offload target(MIC0) in( Data : length(Ntot) into(DataPhi) REUSE )
-	//#pragma offload target(MIC0) nocopy(DataPhi : REUSE)
-	#pragma offload target(MIC0) nocopy(Data : REUSE) nocopy(StartPhi : REUSE)
-	{
+	// //#pragma offload target(MIC0) in( Data : length(Ntot) into(DataPhi) REUSE )
+	// //#pragma offload target(MIC0) nocopy(DataPhi : REUSE)
+	// #pragma offload target(MIC0) nocopy(Data : REUSE) nocopy(StartPhi : REUSE)
+	// {
 
-		//printf("Init = %f\n", DataPhi[0][0][0][0]);
-		StartPhi = & (****Data);
-		for (n=0;n<Ntot;n++) {
-			printf("Val[%d] = %f\n",n,StartPhi[n]);
-			fflush(0);
-		}
-		/*#pragma omp parallel for private(s,c) collapse(3)
-		for (n=0;n<DIMV;n++) {
-			for (k=0;k<DIMZ;k++) {
-				for (j=0;j<DIMY;j++) {
-					#pragma omp simd
-					for (i=0;i<DIMX;i++) {
-						s = sin(Data[n][k][j][i]);
-						c = cos(Data[n][k][j][i]);
-						Data[n][k][j][i] = s*s + c*c;
-					}
-				}
-			}
-		}*/
+	// 	//printf("Init = %f\n", DataPhi[0][0][0][0]);
+	// 	StartPhi = & (****Data);
+	// 	for (n=0;n<Ntot;n++) {
+	// 		printf("Val[%d] = %f\n",n,StartPhi[n]);
+	// 		fflush(0);
+	// 	}
+	// 	/*#pragma omp parallel for private(s,c) collapse(3)
+	// 	for (n=0;n<DIMV;n++) {
+	// 		for (k=0;k<DIMZ;k++) {
+	// 			for (j=0;j<DIMY;j++) {
+	// 				#pragma omp simd
+	// 				for (i=0;i<DIMX;i++) {
+	// 					s = sin(Data[n][k][j][i]);
+	// 					c = cos(Data[n][k][j][i]);
+	// 					Data[n][k][j][i] = s*s + c*c;
+	// 				}
+	// 			}
+	// 		}
+	// 	}*/
 
 
-	} //Data region
+	// } //Data region
 
 	//Check sum
 	cumsum = 0;
