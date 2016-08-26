@@ -56,12 +56,12 @@ int main() {
 			}
 		}
 	}
-
+	Data[0][0][0][0] = -1.0;
 	printf("Begin transfer/calculation\n");
 	//Xfer and calculate
 	#pragma offload target(MIC0) inout( Data : length(Ntot) RETAIN )
 	{
-		//printf("Start = %f\n", ****Data);
+		printf("Start = %f\n", Data);
 
 		/*#pragma omp parallel for private(s,c) collapse(3)
 		for (n=0;n<DIMV;n++) {
@@ -100,7 +100,7 @@ int main() {
 //Creates array of dimension Data4D[N1][N2][N3][N4]
 RealP4 Create4Array(int N1, int N2, int N3, int N4) {
 
-	
+
 	int n,i,j;
 	int ind1, ind2, ind3;
 
