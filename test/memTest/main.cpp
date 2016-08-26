@@ -30,9 +30,10 @@ MICTYPE void Kill4Array(RealP4 ToDie);
 
 MICTYPE RealP4 Data;
 MICTYPE RealP4 DataPhi;
+MICTYPE Real *Start;
+MICTYPE Real *StartPhi;
 
 int main() {
-	Real *Start, *StartPhi;
 	int i,j,k,n, Ntot;
 	Real s, c, cumsum;
 	//Setup
