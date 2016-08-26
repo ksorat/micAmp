@@ -86,6 +86,7 @@ int main() {
 		StartPhi = &(Data[0][0][0][0]);
 		for (n=0;n<Ntot;n++) {
 			printf("Val[%d] = %f\n",n,StartPhi[n]);
+			fflush(0);
 		}
 		/*#pragma omp parallel for private(s,c) collapse(3)
 		for (n=0;n<DIMV;n++) {
