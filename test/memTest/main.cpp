@@ -116,6 +116,7 @@ int main() {
 					}
 				}
 			}	
+		}
 	}
 	// #pragma offload target(MIC0) out( Start : length(Ntot) REUSE )
 	// {
