@@ -39,12 +39,12 @@ int main() {
 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	printf("Finish alloc on host\n");
 
-	printf("Start alloc on MIC\n");
-	#pragma offload target(MIC0) nocopy( Data : REUSE)
-	{
-		Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
-	}
-	printf("Finish alloc on MIC\n");
+	// printf("Start alloc on MIC\n");
+	// #pragma offload target(MIC0) nocopy( Data : REUSE)
+	// {
+	// 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
+	// }
+	// printf("Finish alloc on MIC\n");
 
 	printf("Initialize data on host\n");
 	for (n=0;n<DIMV;n++) {
@@ -59,9 +59,9 @@ int main() {
 
 	printf("Begin transfer/calculation\n");
 	//Xfer and calculate
-	#pragma offload target(MIC0) inout( Data : length(Ntot) REUSE )
+	#pragma offload target(MIC0) inout( ****Data : length(Ntot) RETAIN )
 	{
-		#pragma omp parallel for private(s,c) collapse(3)
+		/*#pragma omp parallel for private(s,c) collapse(3)
 		for (n=0;n<DIMV;n++) {
 			for (k=0;k<DIMZ;k++) {
 				for (j=0;j<DIMY;j++) {
@@ -73,7 +73,7 @@ int main() {
 					}
 				}
 			}
-		}
+		}*/
 
 
 	} //Data region
