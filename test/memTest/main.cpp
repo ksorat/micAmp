@@ -102,15 +102,30 @@ int main() {
 
 	}
 
-	#pragma offload target(MIC0) out( Start : length(Ntot) REUSE )
+	//Offload to phi, modify 4D array on phi and pull back
+	#pragma offload target(MIC0) out( Start : length(Ntot) REUSE ) nocopy(Data : REUSE)
 	{
-		for (n=0;n<Ntot;n++) {
-			printf("Dev Val[%d] = %f\n",n,Start[n]);
-			fflush(0);
-			Start[n] = -1*Start[n];
-		}
-
+		for (n=0;n<DIMV;n++) {
+			for (k=0;k<DIMZ;k++) {
+				for (j=0;j<DIMY;j++) {
+					#pragma omp simd
+					for (i=0;i<DIMX;i++) {
+						s = sin(Data[n][k][j][i]);
+						c = cos(Data[n][k][j][i]);
+						Data[n][k][j][i] = s*s + c*c;
+					}
+				}
+			}	
 	}
+	// #pragma offload target(MIC0) out( Start : length(Ntot) REUSE )
+	// {
+	// 	for (n=0;n<Ntot;n++) {
+	// 		printf("Dev Val[%d] = %f\n",n,Start[n]);
+	// 		fflush(0);
+	// 		Start[n] = -1*Start[n];
+	// 	}
+
+	// }
 
 	for (n=0;n<Ntot;n++) {
 		printf("Final Host Val[%d] = %f\n",n,Start[n]);
