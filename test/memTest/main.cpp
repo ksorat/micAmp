@@ -81,10 +81,11 @@ int main() {
 	//Pull in 1D data, construct 4D array on phi to reference into it
 	#pragma offload target(MIC0) in( Start : length(Ntot) RETAIN ) nocopy(Data : REUSE)
 	{	
+		int ind1,ind2,ind3;
 		Data   = (Real ****)_mm_malloc(sizeof(Real****)*DIMV,       ALIGN);
 		Data[0]       = (Real ***) _mm_malloc(sizeof(Real***)*DIMV*DIMZ,     ALIGN);
 		Data[0][0] = (Real **)  _mm_malloc(sizeof(Real**)*DIMV*DIMZ*DIMY,   ALIGN);
-		Data4D[0][0][0] = (Real *)   Start;
+		Data[0][0][0] = (Real *)   Start;
 		for(n=0;n<DIMV;n++) {
 			ind1 = n*DIMZ;
 			Data[n] = &Data[0][ind1];
@@ -100,7 +101,7 @@ int main() {
 		}
 
 	}
-	
+
 	#pragma offload target(MIC0) out( Start : length(Ntot) REUSE )
 	{
 		for (n=0;n<Ntot;n++) {
