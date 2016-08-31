@@ -1,2 +1,2 @@
 # micAmp
-Development brandh for SuperMIC
+Development branch for SuperMIC
