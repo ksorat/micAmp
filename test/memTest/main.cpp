@@ -49,7 +49,7 @@ int main() {
 	Start = &(Data[0][0][0][0]);
 	
 
-	#pragma omp parallel for num_threads(NUMDEVS) default(private) firstprivate(Ntot)	
+	#pragma omp parallel for num_threads(NUMDEVS) firstprivate(Ntot) private(DataPhi,StartPhi)	
 	for (m=0;m<NUMDEVS;m++) {
 		printf("Constructing 4Array on Dev-%d\n",m);
 		#pragma offload target(mic:m) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN) 
