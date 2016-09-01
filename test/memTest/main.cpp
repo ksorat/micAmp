@@ -46,7 +46,7 @@ int main() {
 	printf("Finish alloc on host\n");
 
 	printf("Start alloc on MIC\n");
-	#pragma offload target(MIC0) nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
+	#pragma offload target(MIC0) nocopy(DataPhi : REUSE) out(StartPhi : REUSE)
 	{
 		DataPhi = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 		StartPhi = &(DataPhi[0][0][0][0]);
