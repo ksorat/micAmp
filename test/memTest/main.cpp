@@ -46,7 +46,7 @@ int main() {
 	printf("Finish alloc on host\n");
 
 	printf("Start alloc on MIC\n");
-	#pragma offload target(MIC0) nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
+	#pragma offload target(MIC0) out(DataPhi : length(0) REUSE) out(StartPhi : length(0) REUSE)
 	{
 		DataPhi = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 		StartPhi = &(DataPhi[0][0][0][0]);
@@ -78,7 +78,7 @@ int main() {
 
 	printf("Begin transfer to device\n");
 	//#pragma offload target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE ) nocopy(DataPhi : REUSE) out( StartPhi : length(Ntot) into(Start) REUSE)
-	#pragma offload target(MIC0) in( Start : into(StartPhi) length(Ntot) REUSE )  nocopy(DataPhi : length(0) REUSE) 
+	#pragma offload target(MIC0) in( Start : into(StartPhi) length(Ntot) REUSE )  nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
 	{
 		for (n=0;n<DIMV;n++) {
 			for (k=0;k<DIMZ;k++) {
