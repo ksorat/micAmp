@@ -62,22 +62,26 @@ int main() {
 		for (k=0;k<DIMZ;k++) {
 			for (j=0;j<DIMY;j++) {
 				for (i=0;i<DIMX;i++) {
-					Data[n][k][j][i] = 1.0*n*k*j*i;
+					//Data[n][k][j][i] = 1.0*n*k*j*i;
 					Data[n][k][j][i] = 1.0*nCum;
 					nCum++;
 				}
 			}
 		}
 	}
+	printf("Finish initialization on host\n");
 
+	printf("Begin transfer to device\n");
+	#pragma offload_transfer target(MIC0) in( Start : into(StartPhi) length(Ntot) REUSE )
+	
 	// Data[0][0][0][0] = -1.0;
 	// for (n=0;n<Ntot;n++) {
 	// 	printf("Host Val[%d] = %f\n",n,Start[n]);
 	// 	fflush(0);
 	// }
-	// printf("Finish initialization on host\n");
+	// 
 
-	// printf("Begin transfer to device\n");
+	// 
 	// //#pragma offload target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE ) nocopy(DataPhi : REUSE) out( StartPhi : length(Ntot) into(Start) REUSE)
 	// #pragma offload target(MIC0) in( Start : into(StartPhi) length(Ntot) REUSE )  nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
 	// {
