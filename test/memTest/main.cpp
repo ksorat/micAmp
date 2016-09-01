@@ -3,10 +3,10 @@
 //Allocate contiguous 2D array, x-fer to MIC, do simple calculation and bring back
 //For SuperMIC
 //
-#define DIMX 4
-#define DIMY 3
-#define DIMZ 5
-#define DIMV 2
+#define DIMX 32
+#define DIMY 32
+#define DIMZ 64
+#define DIMV 5
 
 #define NUMDEVS 2
 #define ALIGN 64
