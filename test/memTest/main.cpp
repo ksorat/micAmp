@@ -36,10 +36,10 @@ MICTYPE Real *Start;
 MICTYPE Real *StartPhi;
 
 int main() {
-	int i,j,k,n, nCum, Ntot;
-	int nPhi;
+	int i,j,k,m,n, nCum, Ntot;
 
-	Real s, c, cumsum;
+
+	Real s, c, cumsum, msum;
 	//Setup
 
 	Ntot = DIMX*DIMY*DIMZ*DIMV;
@@ -48,9 +48,9 @@ int main() {
 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	Start = &(Data[0][0][0][0]);
 	
-	for (n=0;n<NUMDEVS;n++) {
-		printf("Constructing 4Array on Dev-%d\n",n);
-		#pragma offload target(mic:n) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN)
+	for (m=0;m<NUMDEVS;m++) {
+		printf("Constructing 4Array on Dev-%d\n",m);
+		#pragma offload target(mic:m) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN)
 		{
 			DataPhi = Map4Array(StartPhi,DIMV,DIMZ,DIMY,DIMX);
 			DataPhi[0][0][0][0] = -1.0;
@@ -72,26 +72,39 @@ int main() {
 		}
 	}
 
-	for (n=0;n<NUMDEVS;n++) {
-		printf("Transferring to Dev-%d\n",n);
-		#pragma offload_transfer target(mic:n) in( Start : into(StartPhi) length(Ntot) REUSE )
+	for (m=0;m<NUMDEVS;m++) {
+		printf("Transferring to Dev-%d\n",m);
+		#pragma offload_transfer target(mic:m) in( Start : into(StartPhi) length(Ntot) REUSE )
+	}
+
+
+	for (m=0;m<NUMDEVS;m++) {
+		cumsum = 0.0;
+		printf("Computing on Dev-%d\n",m);
+		#pragma offload target(mic:m) nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE) 
+		{
+			msum = 0.0;
+			#pragma omp parallel for collapse(3) reduction(+:msum)
+			for (n=0;n<DIMV;n++) {
+				for (k=0;k<DIMZ;k++) {
+					for (j=0;j<DIMY;j++) {
+						#pragma omp simd
+						for (i=0;i<DIMX;i++) {
+							s = sin(DataPhi[n][k][j][i]);
+							c = cos(DataPhi[n][k][j][i]);
+							msum = msum + m*s*s + (1-m)*c*c;
+						}
+					}
+				}	
+			} // Loop on device
+
+		} // End offload
+		printf("msum = %f\n", msum);
 	}
 
 	// printf("Begin computation on device\n");
 	// #pragma offload target(MIC0) nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
 	// {
-	// 	for (n=0;n<DIMV;n++) {
-	// 		for (k=0;k<DIMZ;k++) {
-	// 			for (j=0;j<DIMY;j++) {
-	// 				#pragma omp simd
-	// 				for (i=0;i<DIMX;i++) {
-	// 					s = sin(DataPhi[n][k][j][i]);
-	// 					c = cos(DataPhi[n][k][j][i]);
-	// 					DataPhi[n][k][j][i] = s*s + c*c;
-	// 				}
-	// 			}
-	// 		}	
-	// 	}
 	// }
 	// printf("End computation on device\n");
 	// #pragma offload_transfer target(MIC0) out( StartPhi : into(Start) length(Ntot) FREE)
