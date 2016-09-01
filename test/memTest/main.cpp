@@ -99,28 +99,10 @@ int main() {
 			} // Loop on device
 
 		} // End offload
-		printf("msum = %f\n", msum);
+		cumsum += msum;
 	}
 
-	// printf("Begin computation on device\n");
-	// #pragma offload target(MIC0) nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
-	// {
-	// }
-	// printf("End computation on device\n");
-	// #pragma offload_transfer target(MIC0) out( StartPhi : into(Start) length(Ntot) FREE)
 
-
-	// //Check sum
-	cumsum = 0;
-	for (n=0;n<DIMV;n++) {
-		for (k=0;k<DIMZ;k++) {
-			for (j=0;j<DIMY;j++) {
-				for (i=0;i<DIMX;i++) {
-					cumsum += Data[n][k][j][i];
-				}
-			}
-		}
-	}
 
 	printf("Checksum = %e\n", cumsum/(DIMX*DIMY*DIMZ*DIMV) - 1.0);
 	Kill4Array(Data);
