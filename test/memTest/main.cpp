@@ -100,13 +100,14 @@ int main() {
 
 		} // End offload
 		printf("Partial sum on Dev-%d = %f\n",m,msum);
-		
+
 		cumsum += msum;
 	}
 
 
-
+	printf("Cum Sum = %f\n",cumsum);
 	printf("Checksum = %e\n", cumsum/(DIMX*DIMY*DIMZ*DIMV) - 1.0);
+
 	Kill4Array(Data);
 	return 0;
 }
