@@ -78,8 +78,9 @@ int main() {
 	}
 
 
+	cumsum = 0.0;
 	for (m=0;m<NUMDEVS;m++) {
-		cumsum = 0.0;
+		
 		printf("Computing on Dev-%d\n",m);
 		#pragma offload target(mic:m) nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE) 
 		{
