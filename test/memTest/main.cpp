@@ -99,6 +99,8 @@ int main() {
 			} // Loop on device
 
 		} // End offload
+		printf("Partial sum on Dev-%d = %f\n",m,msum);
+		
 		cumsum += msum;
 	}
 
