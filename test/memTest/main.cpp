@@ -3,8 +3,8 @@
 //Allocate contiguous 2D array, x-fer to MIC, do simple calculation and bring back
 //For SuperMIC
 //
-#define DIMX 64
-#define DIMY 128
+#define DIMX 32
+#define DIMY 32
 #define DIMZ 64
 #define DIMV 5
 
@@ -49,7 +49,7 @@ int main() {
 	Start = &(Data[0][0][0][0]);
 	
 
-	#pragma omp parallel for num_threads(NUMDEVS) private(DataPhi,StartPhi)	
+	#pragma omp parallel for num_threads(NUMDEVS) private(DataPhi,StartPhi)	firstprivate(Ntot)
 	for (m=0;m<NUMDEVS;m++) {
 		printf("Constructing 4Array on Dev-%d\n",m);
 		#pragma offload target(mic:m) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN) 
