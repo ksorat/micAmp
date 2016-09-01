@@ -36,18 +36,20 @@ MICTYPE Real *StartPhi;
 
 int main() {
 	int i,j,k,n, nCum, Ntot;
+	int nPhi;
+
 	Real s, c, cumsum;
 	//Setup
 
 	Ntot = DIMX*DIMY*DIMZ*DIMV;
-
+	nPhi = 0;
 	printf("Alloc on host\n");
 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	Start = &(Data[0][0][0][0]);
 	printf("Finish alloc on host\n");
 
 	printf("Start alloc on MIC\n");
-	#pragma offload target(MIC0) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN)
+	#pragma offload target(mic:nPhi) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN)
 	{
 		DataPhi = Map4Array(StartPhi,DIMV,DIMZ,DIMY,DIMX);
 		DataPhi[0][0][0][0] = -1.0;
