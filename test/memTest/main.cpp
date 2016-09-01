@@ -3,8 +3,8 @@
 //Allocate contiguous 2D array, x-fer to MIC, do simple calculation and bring back
 //For SuperMIC
 //
-#define DIMX 32
-#define DIMY 32
+#define DIMX 64
+#define DIMY 128
 #define DIMZ 64
 #define DIMV 5
 
@@ -54,7 +54,6 @@ int main() {
 		printf("Constructing 4Array on Dev-%d\n",m);
 		#pragma offload target(mic:m) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN) 
 		{
-			printf("Ntot = %d\n",Ntot);
 			DataPhi = Map4Array(StartPhi,DIMV,DIMZ,DIMY,DIMX);
 			DataPhi[0][0][0][0] = -1.0;
 		}
