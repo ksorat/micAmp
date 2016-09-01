@@ -26,6 +26,7 @@ typedef double Real;
 typedef Real **** RealP4;
 
 MICTYPE RealP4 Create4Array(int N1, int N2, int N3, int N4);
+MICTYPE RealP4 Map4Array(Real *Start, int N1, int N2, int N3, int N4);
 MICTYPE void Kill4Array(RealP4 ToDie);
 
 MICTYPE RealP4 Data;
@@ -68,7 +69,7 @@ int main() {
 			}
 		}
 	}
-	
+
 	// Data[0][0][0][0] = -1.0;
 	// for (n=0;n<Ntot;n++) {
 	// 	printf("Host Val[%d] = %f\n",n,Start[n]);
