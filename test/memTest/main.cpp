@@ -92,52 +92,22 @@ int main() {
 		}
 	}
 	printf("End computation on device\n");
-	// Data[0][0][0][0] = -1.0;
-	// for (n=0;n<Ntot;n++) {
-	// 	printf("Host Val[%d] = %f\n",n,Start[n]);
-	// 	fflush(0);
-	// }
-	// 
-
-	// 
-	// //#pragma offload target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE ) nocopy(DataPhi : REUSE) out( StartPhi : length(Ntot) into(Start) REUSE)
-	// #pragma offload target(MIC0) in( Start : into(StartPhi) length(Ntot) REUSE )  nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
-	// {
-	// 	for (n=0;n<DIMV;n++) {
-	// 		for (k=0;k<DIMZ;k++) {
-	// 			for (j=0;j<DIMY;j++) {
-	// 				#pragma omp simd
-	// 				for (i=0;i<DIMX;i++) {
-	// 					s = sin(DataPhi[n][k][j][i]);
-	// 					c = cos(DataPhi[n][k][j][i]);
-	// 					DataPhi[n][k][j][i] = s*s + c*c;
-	// 				}
-	// 			}
-	// 		}	
-	// 	}
-
-	// }
-
-
-	// for (n=0;n<Ntot;n++) {
-	// 	printf("Final Host Val[%d] = %f\n",n,Start[n]);
-	// 	fflush(0);
-	// }
+	#pragma offload_transfer target(MIC0) out( StartPhi : into(Start) length(Ntot) FREE)
 
 
 	// //Check sum
-	// cumsum = 0;
-	// for (n=0;n<DIMV;n++) {
-	// 	for (k=0;k<DIMZ;k++) {
-	// 		for (j=0;j<DIMY;j++) {
-	// 			for (i=0;i<DIMX;i++) {
-	// 				cumsum += Data[n][k][j][i];
-	// 			}
-	// 		}
-	// 	}
-	// }
+	cumsum = 0;
+	for (n=0;n<DIMV;n++) {
+		for (k=0;k<DIMZ;k++) {
+			for (j=0;j<DIMY;j++) {
+				for (i=0;i<DIMX;i++) {
+					cumsum += Data[n][k][j][i];
+				}
+			}
+		}
+	}
 
-	// printf("Checksum = %e\n", cumsum/(DIMX*DIMY*DIMZ*DIMV) - 1.0);
+	printf("Checksum = %e\n", cumsum/(DIMX*DIMY*DIMZ*DIMV) - 1.0);
 	Kill4Array(Data);
 	return 0;
 }
