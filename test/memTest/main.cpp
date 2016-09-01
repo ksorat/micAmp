@@ -78,7 +78,7 @@ int main() {
 
 	printf("Begin transfer to device\n");
 	//#pragma offload target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE ) nocopy(DataPhi : REUSE) out( StartPhi : length(Ntot) into(Start) REUSE)
-	#pragma offload target(MIC0) in( Start[0:Ntot] : into(StartPhi[0:Ntot]) REUSE )  nocopy(DataPhi : REUSE) 
+	#pragma offload target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE )  nocopy(DataPhi : REUSE) 
 	{
 		for (n=0;n<DIMV;n++) {
 			for (k=0;k<DIMZ;k++) {
