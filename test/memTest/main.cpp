@@ -45,18 +45,14 @@ int main() {
 	Start = &(Data[0][0][0][0]);
 	printf("Finish alloc on host\n");
 
-	// printf("Start alloc on MIC\n");
-	// #pragma offload target(MIC0) nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
-	// {
-	// 	DataPhi = Create4Array(DIMV,DIMZ,DIMY,DIMX);
-	// 	StartPhi = &(DataPhi[0][0][0][0]);
+	printf("Start alloc on MIC\n");
+	#pragma offload target(MIC0) nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
+	{
+		DataPhi = Create4Array(DIMV,DIMZ,DIMY,DIMX);
+		StartPhi = &(DataPhi[0][0][0][0]);
 
-	// }
-	// #pragma offload target(MIC0) nocopy( Data : REUSE)
-	// {
-	// 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
-	// }
-	// printf("Finish alloc on MIC\n");
+	}
+	printf("Finish alloc on MIC\n");
 
 
 	printf("Initialize data on host\n");
@@ -77,96 +73,33 @@ int main() {
 		printf("Host Val[%d] = %f\n",n,Start[n]);
 		fflush(0);
 	}
+	printf("Finish initialization on host\n");
 
-	//Pull in 1D data, construct 4D array on phi to reference into it
-	#pragma offload target(MIC0) in( Start : length(Ntot) RETAIN ) nocopy(Data : REUSE)
-	{	
-		int ind1,ind2,ind3;
-		Data   = (Real ****)_mm_malloc(sizeof(Real****)*DIMV,       ALIGN);
-		Data[0]       = (Real ***) _mm_malloc(sizeof(Real***)*DIMV*DIMZ,     ALIGN);
-		Data[0][0] = (Real **)  _mm_malloc(sizeof(Real**)*DIMV*DIMZ*DIMY,   ALIGN);
-		Data[0][0][0] = (Real *)   Start;
-		for(n=0;n<DIMV;n++) {
-			ind1 = n*DIMZ;
-			Data[n] = &Data[0][ind1];
-			for(i=0;i<DIMZ;i++) {
-				ind2 = n*(DIMZ*DIMY) + i*DIMY;
-				Data[n][i] = &Data[0][0][ind2];
-				for(j=0;j<DIMY;j++) {
-					ind3 = n*(DIMZ*DIMY*DIMX) + i*(DIMY*DIMX) + j*DIMX;
-					Data[n][i][j] = &Data[0][0][0][ind3];
+	printf("Begin transfer to device\n");
 	
-				}
-			}
-		}
-
-	}
-
-	//Offload to phi, modify 4D array on phi and pull back
-	#pragma offload target(MIC0) out( Start : length(Ntot) REUSE ) nocopy(Data : REUSE)
+	#pragma offload target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE ) nocopy(DataPhi : REUSE) out( StartPhi : length(Ntot) into(Start) REUSE)
 	{
 		for (n=0;n<DIMV;n++) {
 			for (k=0;k<DIMZ;k++) {
 				for (j=0;j<DIMY;j++) {
 					#pragma omp simd
 					for (i=0;i<DIMX;i++) {
-						s = sin(Data[n][k][j][i]);
-						c = cos(Data[n][k][j][i]);
-						Data[n][k][j][i] = s*s + c*c;
+						s = sin(DataPhi[n][k][j][i]);
+						c = cos(DataPhi[n][k][j][i]);
+						DataPhi[n][k][j][i] = s*s + c*c;
 					}
 				}
 			}	
 		}
-	}
-	// #pragma offload target(MIC0) out( Start : length(Ntot) REUSE )
-	// {
-	// 	for (n=0;n<Ntot;n++) {
-	// 		printf("Dev Val[%d] = %f\n",n,Start[n]);
-	// 		fflush(0);
-	// 		Start[n] = -1*Start[n];
-	// 	}
 
-	// }
+	}
+
 
 	for (n=0;n<Ntot;n++) {
 		printf("Final Host Val[%d] = %f\n",n,Start[n]);
 		fflush(0);
 	}
 
-	// printf("Begin transfer\n");
-	// //#pragma offload_transfer target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE )
-	// #pragma offload_transfer target(MIC0) in( Data : length(Ntot) into(DataPhi) REUSE )
-	// printf("End transfer\n");
-	// #pragma offload_transfer target(MIC0) in( Data : length(Ntot) RETAIN ) 
-	// //Xfer and calculate
-	
-	// //#pragma offload target(MIC0) in( Data : length(Ntot) into(DataPhi) REUSE )
-	// //#pragma offload target(MIC0) nocopy(DataPhi : REUSE)
-	// #pragma offload target(MIC0) nocopy(Data : REUSE) nocopy(StartPhi : REUSE)
-	// {
-
-	// 	//printf("Init = %f\n", DataPhi[0][0][0][0]);
-	// 	StartPhi = & (****Data);
-	// 	for (n=0;n<Ntot;n++) {
-	// 		printf("Val[%d] = %f\n",n,StartPhi[n]);
-	// 		fflush(0);
-	// 	}
-	// 	/*#pragma omp parallel for private(s,c) collapse(3)
-	// 	for (n=0;n<DIMV;n++) {
-	// 		for (k=0;k<DIMZ;k++) {
-	// 			for (j=0;j<DIMY;j++) {
-	// 				#pragma omp simd
-	// 				for (i=0;i<DIMX;i++) {
-	// 					s = sin(Data[n][k][j][i]);
-	// 					c = cos(Data[n][k][j][i]);
-	// 					Data[n][k][j][i] = s*s + c*c;
-	// 				}
-	// 			}
-	// 		}
-	// 	}*/
-
-
-	// } //Data region
 
 	//Check sum
 	cumsum = 0;
