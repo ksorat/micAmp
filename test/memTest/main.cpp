@@ -59,14 +59,14 @@ int main() {
 
 
 	printf("Initializing data on host\n");
-	nCum = 0;
+	//nCum = 0;
 	for (n=0;n<DIMV;n++) {
 		for (k=0;k<DIMZ;k++) {
 			for (j=0;j<DIMY;j++) {
 				for (i=0;i<DIMX;i++) {
-					//Data[n][k][j][i] = 1.0*n*k*j*i;
-					Data[n][k][j][i] = 1.0*nCum;
-					nCum++;
+					Data[n][k][j][i] = 1.0*n*k*j*i;
+					//Data[n][k][j][i] = 1.0*nCum;
+					//nCum++;
 				}
 			}
 		}
