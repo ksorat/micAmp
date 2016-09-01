@@ -73,7 +73,25 @@ int main() {
 
 	printf("Begin transfer to device\n");
 	#pragma offload_transfer target(MIC0) in( Start : into(StartPhi) length(Ntot) REUSE )
-	
+	printf("End transfer to device\n");
+
+	printf("Begin computation on device\n");
+	#pragma offload target(MIC0) nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
+	{
+		for (n=0;n<DIMV;n++) {
+			for (k=0;k<DIMZ;k++) {
+				for (j=0;j<DIMY;j++) {
+					#pragma omp simd
+					for (i=0;i<DIMX;i++) {
+						s = sin(DataPhi[n][k][j][i]);
+						c = cos(DataPhi[n][k][j][i]);
+						DataPhi[n][k][j][i] = s*s + c*c;
+					}
+				}
+			}	
+		}
+	}
+	printf("End computation on device\n");
 	// Data[0][0][0][0] = -1.0;
 	// for (n=0;n<Ntot;n++) {
 	// 	printf("Host Val[%d] = %f\n",n,Start[n]);
