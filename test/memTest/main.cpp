@@ -46,12 +46,11 @@ int main() {
 	printf("Finish alloc on host\n");
 
 	printf("Start alloc on MIC\n");
-	#pragma offload target(MIC0) nocopy(DataPhi : length(0) REUSE) out(StartPhi : length(0) REUSE)
+	#pragma offload target(MIC0) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN)
 	{
-		DataPhi = Create4Array(DIMV,DIMZ,DIMY,DIMX);
-		StartPhi = &(DataPhi[0][0][0][0]);
-
+		DataPhi = Map4Array(StartPhi,DIMV,DIMZ,DIMY,DIMX);
 		DataPhi[0][0][0][0] = -1.0;
+
 	}
 	printf("Finish alloc on MIC\n");
 
@@ -69,67 +68,69 @@ int main() {
 			}
 		}
 	}
-	Data[0][0][0][0] = -1.0;
-	for (n=0;n<Ntot;n++) {
-		printf("Host Val[%d] = %f\n",n,Start[n]);
-		fflush(0);
-	}
-	printf("Finish initialization on host\n");
+	
+	// Data[0][0][0][0] = -1.0;
+	// for (n=0;n<Ntot;n++) {
+	// 	printf("Host Val[%d] = %f\n",n,Start[n]);
+	// 	fflush(0);
+	// }
+	// printf("Finish initialization on host\n");
 
-	printf("Begin transfer to device\n");
-	//#pragma offload target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE ) nocopy(DataPhi : REUSE) out( StartPhi : length(Ntot) into(Start) REUSE)
-	#pragma offload target(MIC0) in( Start : into(StartPhi) length(Ntot) REUSE )  nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
-	{
-		for (n=0;n<DIMV;n++) {
-			for (k=0;k<DIMZ;k++) {
-				for (j=0;j<DIMY;j++) {
-					#pragma omp simd
-					for (i=0;i<DIMX;i++) {
-						s = sin(DataPhi[n][k][j][i]);
-						c = cos(DataPhi[n][k][j][i]);
-						DataPhi[n][k][j][i] = s*s + c*c;
-					}
-				}
-			}	
-		}
+	// printf("Begin transfer to device\n");
+	// //#pragma offload target(MIC0) in( Start : length(Ntot) into(StartPhi) REUSE ) nocopy(DataPhi : REUSE) out( StartPhi : length(Ntot) into(Start) REUSE)
+	// #pragma offload target(MIC0) in( Start : into(StartPhi) length(Ntot) REUSE )  nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
+	// {
+	// 	for (n=0;n<DIMV;n++) {
+	// 		for (k=0;k<DIMZ;k++) {
+	// 			for (j=0;j<DIMY;j++) {
+	// 				#pragma omp simd
+	// 				for (i=0;i<DIMX;i++) {
+	// 					s = sin(DataPhi[n][k][j][i]);
+	// 					c = cos(DataPhi[n][k][j][i]);
+	// 					DataPhi[n][k][j][i] = s*s + c*c;
+	// 				}
+	// 			}
+	// 		}	
+	// 	}
 
-	}
-
-
-	for (n=0;n<Ntot;n++) {
-		printf("Final Host Val[%d] = %f\n",n,Start[n]);
-		fflush(0);
-	}
+	// }
 
 
-	//Check sum
-	cumsum = 0;
-	for (n=0;n<DIMV;n++) {
-		for (k=0;k<DIMZ;k++) {
-			for (j=0;j<DIMY;j++) {
-				for (i=0;i<DIMX;i++) {
-					cumsum += Data[n][k][j][i];
-				}
-			}
-		}
-	}
+	// for (n=0;n<Ntot;n++) {
+	// 	printf("Final Host Val[%d] = %f\n",n,Start[n]);
+	// 	fflush(0);
+	// }
 
-	printf("Checksum = %e\n", cumsum/(DIMX*DIMY*DIMZ*DIMV) - 1.0);
+
+	// //Check sum
+	// cumsum = 0;
+	// for (n=0;n<DIMV;n++) {
+	// 	for (k=0;k<DIMZ;k++) {
+	// 		for (j=0;j<DIMY;j++) {
+	// 			for (i=0;i<DIMX;i++) {
+	// 				cumsum += Data[n][k][j][i];
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	// printf("Checksum = %e\n", cumsum/(DIMX*DIMY*DIMZ*DIMV) - 1.0);
 	Kill4Array(Data);
 	return 0;
 }
 
-//Creates array of dimension Data4D[N1][N2][N3][N4]
-RealP4 Create4Array(int N1, int N2, int N3, int N4) {
 
 
+//Input: Start, points to contiguous allocated memory
+//Function creates 4D structure w/ mapped data
+RealP4 Map4Array(Real *Start, int N1, int N2, int N3, int N4) {
 	int n,i,j;
-	int ind1, ind2, ind3;
+	int ind1,ind2,ind3;
 
-	RealP4 Data4D   = (Real ****)_mm_malloc(sizeof(Real****)*N1,       ALIGN);
-	Data4D[0]       = (Real ***) _mm_malloc(sizeof(Real***)*N1*N2,     ALIGN);
-	Data4D[0][0]    = (Real **)  _mm_malloc(sizeof(Real**)*N1*N2*N3,   ALIGN);
-	Data4D[0][0][0] = (Real *)   _mm_malloc(sizeof(Real*)*N1*N2*N3*N4, ALIGN);	
+	RealP4 Data4D   = (Real ****) _mm_malloc(sizeof(Real****)*N1,       ALIGN);
+	Data4D[0]       = (Real *** ) _mm_malloc(sizeof(Real***)*N1*N2,     ALIGN);
+	Data4D[0][0]    = (Real **  ) _mm_malloc(sizeof(Real**)*N1*N2*N3,   ALIGN);
+	Data4D[0][0][0] = (Real *   ) Start;
 
 	for(n=0;n<N1;n++) {
 		ind1 = n*N2;
@@ -144,6 +145,17 @@ RealP4 Create4Array(int N1, int N2, int N3, int N4) {
 			}
 		}
 	}
+	return Data4D;
+}
+
+//Creates array of dimension Data4D[N1][N2][N3][N4]
+RealP4 Create4Array(int N1, int N2, int N3, int N4) {
+	Real *Start;
+	RealP4 Data4D;
+
+	//Allocate memory
+	Start = (Real *) _mm_malloc(sizeof(Real*)*N1*N2*N3*N4, ALIGN);
+	Data4D = Map4Array(Start,N1,N2,N3,N4);
 
 	return Data4D;
 }
