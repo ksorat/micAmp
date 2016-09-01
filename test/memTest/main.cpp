@@ -8,6 +8,7 @@
 #define DIMZ 5
 #define DIMV 2
 
+#define NUMDEVS 2
 #define ALIGN 64
 
 #define MIC0 mic:0
@@ -42,23 +43,22 @@ int main() {
 	//Setup
 
 	Ntot = DIMX*DIMY*DIMZ*DIMV;
-	nPhi = 0;
-	printf("Alloc on host\n");
+
+	printf("Construct 4Array on host\n");
 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	Start = &(Data[0][0][0][0]);
-	printf("Finish alloc on host\n");
-
-	printf("Start alloc on MIC\n");
-	#pragma offload target(mic:nPhi) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN)
-	{
-		DataPhi = Map4Array(StartPhi,DIMV,DIMZ,DIMY,DIMX);
-		DataPhi[0][0][0][0] = -1.0;
-
+	
+	for (n=0;n<NUMDEVS;n++) {
+		printf("Constructing 4Array on Dev-%d\n",n);
+		#pragma offload target(mic:n) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN)
+		{
+			DataPhi = Map4Array(StartPhi,DIMV,DIMZ,DIMY,DIMX);
+			DataPhi[0][0][0][0] = -1.0;
+		}
 	}
-	printf("Finish alloc on MIC\n");
 
 
-	printf("Initialize data on host\n");
+	printf("Initializing data on host\n");
 	nCum = 0;
 	for (n=0;n<DIMV;n++) {
 		for (k=0;k<DIMZ;k++) {
@@ -71,30 +71,30 @@ int main() {
 			}
 		}
 	}
-	printf("Finish initialization on host\n");
 
-	printf("Begin transfer to device\n");
-	#pragma offload_transfer target(MIC0) in( Start : into(StartPhi) length(Ntot) REUSE )
-	printf("End transfer to device\n");
-
-	printf("Begin computation on device\n");
-	#pragma offload target(MIC0) nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
-	{
-		for (n=0;n<DIMV;n++) {
-			for (k=0;k<DIMZ;k++) {
-				for (j=0;j<DIMY;j++) {
-					#pragma omp simd
-					for (i=0;i<DIMX;i++) {
-						s = sin(DataPhi[n][k][j][i]);
-						c = cos(DataPhi[n][k][j][i]);
-						DataPhi[n][k][j][i] = s*s + c*c;
-					}
-				}
-			}	
-		}
+	for (n=0;n<NUMDEVS;n++) {
+		printf("Transferring to Dev-%d\n",n);
+		#pragma offload_transfer target(mic:n) in( Start : into(StartPhi) length(Ntot) REUSE )
 	}
-	printf("End computation on device\n");
-	#pragma offload_transfer target(MIC0) out( StartPhi : into(Start) length(Ntot) FREE)
+
+	// printf("Begin computation on device\n");
+	// #pragma offload target(MIC0) nocopy(DataPhi : REUSE) nocopy(StartPhi : REUSE)
+	// {
+	// 	for (n=0;n<DIMV;n++) {
+	// 		for (k=0;k<DIMZ;k++) {
+	// 			for (j=0;j<DIMY;j++) {
+	// 				#pragma omp simd
+	// 				for (i=0;i<DIMX;i++) {
+	// 					s = sin(DataPhi[n][k][j][i]);
+	// 					c = cos(DataPhi[n][k][j][i]);
+	// 					DataPhi[n][k][j][i] = s*s + c*c;
+	// 				}
+	// 			}
+	// 		}	
+	// 	}
+	// }
+	// printf("End computation on device\n");
+	// #pragma offload_transfer target(MIC0) out( StartPhi : into(Start) length(Ntot) FREE)
 
 
 	// //Check sum
