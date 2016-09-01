@@ -83,6 +83,7 @@ int main() {
 
 
 	cumsum = 0.0;
+	#pragma omp parallel for num_threads(NUMDEVS) private(DataPhi,StartPhi) reduction(+:cumsum)
 	for (m=0;m<NUMDEVS;m++) {
 		
 		printf("Computing on Dev-%d\n",m);
