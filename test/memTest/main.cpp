@@ -47,7 +47,7 @@ int main() {
 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	Start = &(Data[0][0][0][0]);
 	
-	#pragma omp parallel for 
+
 	for (m=0;m<NUMDEVS;m++) {
 		printf("Constructing 4Array on Dev-%d\n",m);
 		#pragma offload target(mic:m) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN) 
@@ -71,7 +71,8 @@ int main() {
 			}
 		}
 	}
-
+	//Transfer to multiple cards in parallel
+	#pragma omp parallel for 
 	for (m=0;m<NUMDEVS;m++) {
 		printf("Transferring to Dev-%d\n",m);
 		#pragma offload_transfer target(mic:m) in( Start : into(StartPhi) length(Ntot) REUSE )
