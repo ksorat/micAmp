@@ -39,6 +39,7 @@ int main() {
 	int i,j,k,m,n, nCum, Ntot;
 
 	Real s, c, cumsum, msum;
+	int Sigs[NUMDEVS];
 	//Setup
 
 	Ntot = DIMX*DIMY*DIMZ*DIMV;
@@ -48,7 +49,7 @@ int main() {
 	Start = &(Data[0][0][0][0]);
 	
 
-	#pragma omp parallel for private(DataPhi,StartPhi)
+	#pragma omp parallel for num_threads(NUMDEVS) default private	
 	for (m=0;m<NUMDEVS;m++) {
 		printf("Constructing 4Array on Dev-%d\n",m);
 		#pragma offload target(mic:m) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN) 
