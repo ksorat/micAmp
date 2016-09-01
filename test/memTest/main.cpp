@@ -38,7 +38,6 @@ MICTYPE Real *StartPhi;
 int main() {
 	int i,j,k,m,n, nCum, Ntot;
 
-
 	Real s, c, cumsum, msum;
 	//Setup
 
@@ -48,9 +47,10 @@ int main() {
 	Data = Create4Array(DIMV,DIMZ,DIMY,DIMX);
 	Start = &(Data[0][0][0][0]);
 	
+	#pragma omp parallel for 
 	for (m=0;m<NUMDEVS;m++) {
 		printf("Constructing 4Array on Dev-%d\n",m);
-		#pragma offload target(mic:m) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN)
+		#pragma offload target(mic:m) nocopy(DataPhi : REUSE) nocopy(StartPhi : length(Ntot) RETAIN) 
 		{
 			DataPhi = Map4Array(StartPhi,DIMV,DIMZ,DIMY,DIMX);
 			DataPhi[0][0][0][0] = -1.0;
