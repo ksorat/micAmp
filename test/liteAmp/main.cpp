@@ -1,0 +1,92 @@
+//Main driver file for MIC-amp
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include "amps.h"
+#include "prototypes.h"
+
+Model_S Model;
+
+int main(int argc, char *argv[]) {
+
+	
+	Grid_S Grid;
+	RealP4 State, StatePhi;
+	Real *StatePhi0, *State0; 
+
+	int m=0; //Index of mic card
+	int Ntot;
+
+	//Setup
+	// - Fill in Model data structure
+	// - Fill in Grid data structure
+	conModel(&Model);
+	conGrid(&Grid);
+
+	Ntot = Grid.Nv*Grid.Nz*Grid.Ny*Grid.Nx;
+	State = Create4Array(Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
+
+	//Initialize system on host
+	initialConds(State,Grid,Model);
+	State0 = &(State[0][0][0][0]);
+
+	//Create data container on Phi
+	#pragma offload target(mic:m) \
+		nocopy(StatePhi:REUSE) nocopy(StatePhi0:length(Ntot) RETAIN)
+	{
+		StatePhi = Map4Array(StatePhi0,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
+	}
+	
+	InitializeIntegrator(Grid,Model);
+
+	//Enforce BC's
+	EnforceBCs(State, Grid, Model);
+
+	//Calculate initial timestep
+	Grid.dt = CalcDT(State,Grid,Model);
+
+	//Do initial outputs
+	if ( (Grid.Ts) % Model.TsOut == 0 ) {
+		toConsole(State,Grid,Model);
+		toVTK(State,Grid,Model); 
+	}	
+
+	while (Grid.t < Grid.Tfin) {
+		//Evolve system
+		#pragma offload_transfer target(mic:m)  )
+		#pragma offload target(mic:m) \
+			in (State0: into(StatePhi0) length(Ntot) REUSE) \
+			out(StatePhi0: into(State0) length(Ntot) REUSE) \
+			nocopy(StatePhi)
+		{
+			AdvanceFluid(StatePhi, Grid, Model, Grid.dt);
+		}
+
+		//Enforce BCs
+		EnforceBCs(State, Grid, Model);
+
+		//Update time
+		Grid.Ts++;
+		Grid.t = Grid.t + Grid.dt;
+
+		//Calculate new timestep
+		Grid.dt = CalcDT(State,Grid,Model);
+
+		//Output if necessary
+		if ( (Grid.Ts) % Model.TsOut == 0 ) {
+			toConsole(State,Grid,Model);
+			toVTK(State,Grid,Model); 
+		}
+
+	}
+
+
+	Kill4Array(State);
+	#pragma offload target(mic:m) \
+		nocopy(StatePhi) nocopy(StatePhi0: length(Ntot) FREE)
+	{
+		Kill4Array(StatePhi);
+	}
+
+	DestroyIntegrator(Grid,Model);
+}
