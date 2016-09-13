@@ -10,8 +10,7 @@ MICTYPE Model_S Model;
 int main(int argc, char *argv[]) {
 
 	
-	Grid_S Grid;
-	add mictypes
+	MICTYPE Grid_S Grid;
 	MICTYPE RealP4 State;
 	MICTYPERealP4 StatePhi;
 	MICTYPE Real *StatePhi0, *State0; 
