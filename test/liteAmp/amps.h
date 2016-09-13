@@ -70,10 +70,10 @@ typedef struct {
 	Real C0; //Courant Number
 	Real gVec[3]; //Gravity vectory
 	int TsOut; //Output cadence for command line
-	MICTYPE Real Gam; //For MUSCL equation of state
+	Real Gam; //For MUSCL equation of state
 } Model_S;
 
-extern Model_S Model;
+extern MICTYPE Model_S Model;
 
 #define SQR(x) ((x)*(x))
 #define IMIN(a,b) ((a) < (b) ? a : b)
