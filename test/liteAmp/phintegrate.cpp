@@ -85,7 +85,9 @@ void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 	int Ntot = Grid.Nv*Grid.Nz*Grid.Ny*Grid.Nx;
 	int m=0;
 	
-	RealP4 FxH,FyH,FzH;
+	RealP4 FxH;
+	RealP4 FyH;
+	RealP4 FzH;
 	Real *FxH0, *FyH0, *FzH0;
 	Real *Fx0, *Fy0, *Fz0;
 
