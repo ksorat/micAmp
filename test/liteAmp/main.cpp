@@ -11,7 +11,8 @@ int main(int argc, char *argv[]) {
 
 	
 	Grid_S Grid;
-	RealP4 State, StatePhi;
+	RealP4 State;
+	RealP4 StatePhi;
 	Real *StatePhi0, *State0; 
 
 	int m=0; //Index of mic card
