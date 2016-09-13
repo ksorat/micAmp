@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	printf("Initializing integrator\n");
-	//InitializeIntegrator(Grid,Model);
+	InitializeIntegrator(Grid,Model);
 
 	//Enforce BC's
 	EnforceBCs(State, Grid, Model);
