@@ -43,6 +43,7 @@ int main(int argc, char *argv[]) {
 		StatePhi = Map4Array(StatePhi0,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
 		printf("Wiping main array on dev\n");
 		Wipe4Array(StatePhi,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
+		printf("Random val = %f\n"StatePhi[3,10,10,10]);
 	}
 
 	printf("Initializing integrator\n");
@@ -62,13 +63,15 @@ int main(int argc, char *argv[]) {
 
 	while (Grid.t < Grid.Tfin) {
 		//Evolve system
-		#pragma offload target(mic:m) \
-			in (State0: into(StatePhi0) length(Ntot) REUSE) \
-			out(StatePhi0: into(State0) length(Ntot) REUSE) \
-			nocopy(StatePhi)
-		{
-			AdvanceFluid(StatePhi, Grid, Model, Grid.dt);
-		}
+		#pragma offload_transfer target(mic:m) in(State0: into(StatePhi0) length(Ntot) REUSE)
+
+		// #pragma offload target(mic:m) \
+		// 	in (State0: into(StatePhi0) length(Ntot) REUSE) \
+		// 	out(StatePhi0: into(State0) length(Ntot) REUSE) \
+		// 	nocopy(StatePhi)
+		// {
+		// 	AdvanceFluid(StatePhi, Grid, Model, Grid.dt);
+		// }
 
 		//Enforce BCs
 		EnforceBCs(State, Grid, Model);
