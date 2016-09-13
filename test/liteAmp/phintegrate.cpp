@@ -85,9 +85,7 @@ void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 	int Ntot;
 	int m=0;
 	
-	RealP4 FxH;
-	RealP4 FyH;
-	RealP4 FzH;
+	RealP4 FxH,FyH,FzH;
 	Real *FxH0, *FyH0, *FzH0;
 	Real *Fx0, *Fy0, *Fz0;
 
@@ -117,6 +115,10 @@ void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 		Wipe4Array(Flux_y,Grid.Nv,Grid.Nz+1,Grid.Ny+1,Grid.Nx+1);
 		Wipe4Array(Flux_z,Grid.Nv,Grid.Nz+1,Grid.Ny+1,Grid.Nx+1);
 	}
+	//Kill on host (not really necessary)
+	Kill4Array(FxH);
+	Kill4Array(FyH);
+	Kill4Array(FzH);
 
 }
 
