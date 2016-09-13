@@ -36,10 +36,11 @@ int main(int argc, char *argv[]) {
 	//Create data container on Phi
 	#pragma offload_transfer target(mic:m) nocopy(StatePhi0 : length(Ntot) ALLOC)
 
-	/*#pragma offload target(mic:m) in(Ntot,Grid) nocopy(StatePhi:REUSE) nocopy(StatePhi0:length(Ntot) ALLOC)
+	#pragma offload target(mic:m) in(Ntot,Grid) nocopy(StatePhi:REUSE) nocopy(StatePhi0:length(Ntot) ALLOC)
 	{
 		StatePhi = Map4Array(StatePhi0,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
-	}*/
+	}
+	
 	printf("Initializing integrator\n");
 	//InitializeIntegrator(Grid,Model);
 
