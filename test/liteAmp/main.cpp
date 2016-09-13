@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 	
 	MICTYPE Grid_S Grid;
 	MICTYPE RealP4 State;
-	MICTYPERealP4 StatePhi;
+	MICTYPE RealP4 StatePhi;
 	MICTYPE Real *StatePhi0, *State0; 
 
 	int m=0; //Index of mic card
