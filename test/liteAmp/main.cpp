@@ -32,7 +32,8 @@ int main(int argc, char *argv[]) {
 	//Initialize system on host
 	initialConds(State,Grid,Model);
 	State0 = &(State[0][0][0][0]);
-
+	StatePhi0 = State0; //Avoid uninitialized pointers
+	
 	printf("Begin device initialization\n");
 	//Create data container on Phi
 	#pragma offload_transfer target(mic:m) nocopy(StatePhi0 : length(Ntot) ALLOC)
