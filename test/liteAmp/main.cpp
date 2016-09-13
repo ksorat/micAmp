@@ -33,8 +33,7 @@ int main(int argc, char *argv[]) {
 
 	printf("Begin device initialization\n");
 	//Create data container on Phi
-	#pragma offload target(mic:m) \
-		nocopy(StatePhi:REUSE) nocopy(StatePhi0:length(Ntot) RETAIN)
+	#pragma offload target(mic:m) nocopy(StatePhi:REUSE) nocopy(StatePhi0:length(Ntot) ALLOC)
 	{
 		StatePhi = Map4Array(StatePhi0,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
 	}
