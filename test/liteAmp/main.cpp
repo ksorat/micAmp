@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 		StatePhi = Map4Array(StatePhi0,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
 		printf("Wiping main array on dev\n");
 		Wipe4Array(StatePhi,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
-		printf("Random val = %f\n"StatePhi[3,10,10,10]);
+		printf("Random val = %f\n",StatePhi[3,10,10,10]);
 	}
 
 	printf("Initializing integrator\n");
