@@ -102,9 +102,9 @@ void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 
 	#pragma offload target(mic:m) \
 		in(Ntot) \
-		nocopy(Flux_x:REUSE) nocopy(Fx0:length(Ntot) ALLOC) \
-		nocopy(Flux_y:REUSE) nocopy(Fy0:length(Ntot) ALLOC) \
-		nocopy(Flux_z:REUSE) nocopy(Fz0:length(Ntot) ALLOC) 
+		nocopy(Flux_x:REUSE) out(Fx0:length(Ntot) ALLOC) \
+		nocopy(Flux_y:REUSE) out(Fy0:length(Ntot) ALLOC) \
+		nocopy(Flux_z:REUSE) out(Fz0:length(Ntot) ALLOC) 
 	{
 		Flux_x = Map4Array(Fx0,Grid.Nv,Grid.Nz+1,Grid.Ny+1,Grid.Nx+1);
 		Flux_y = Map4Array(Fy0,Grid.Nv,Grid.Nz+1,Grid.Ny+1,Grid.Nx+1);
@@ -115,6 +115,7 @@ void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 		Wipe4Array(Flux_y,Grid.Nv,Grid.Nz+1,Grid.Ny+1,Grid.Nx+1);
 		Wipe4Array(Flux_z,Grid.Nv,Grid.Nz+1,Grid.Ny+1,Grid.Nx+1);
 	}
+
 	//Kill on host (not really necessary)
 	Kill4Array(FxH);
 	Kill4Array(FyH);
