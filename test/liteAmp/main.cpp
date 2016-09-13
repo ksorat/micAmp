@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
 	//Setup
 	// - Fill in Model data structure
 	// - Fill in Grid data structure
+	printf("Begin host initialization\n");
 	conModel(&Model);
 	conGrid(&Grid);
 
@@ -30,13 +31,14 @@ int main(int argc, char *argv[]) {
 	initialConds(State,Grid,Model);
 	State0 = &(State[0][0][0][0]);
 
+	printf("Begin device initialization\n");
 	//Create data container on Phi
 	#pragma offload target(mic:m) \
 		nocopy(StatePhi:REUSE) nocopy(StatePhi0:length(Ntot) RETAIN)
 	{
 		StatePhi = Map4Array(StatePhi0,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
 	}
-	
+	printf("Initializing integrator\n");
 	InitializeIntegrator(Grid,Model);
 
 	//Enforce BC's

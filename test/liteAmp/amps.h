@@ -34,7 +34,7 @@ typedef Real **** RealP4;
 #define XMIN -1.0
 #define XMAX 1.0
 #define TFIN 10.0
-#define TSOUT 10
+#define TSOUT 1
 
 
 typedef struct {
