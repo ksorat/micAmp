@@ -106,7 +106,8 @@ void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 
 //Clean up after yourself
 void DestroyIntegrator(Grid_S Grid, Model_S Model) {
-
+	int m=0;
+	
 	//Clean up arrays on card
 	#pragma offload target(mic:m) \
 		nocopy(Flux_x,Flux_y,Flux_z)
