@@ -82,7 +82,7 @@ void FluxUpdate(RealP4 Prim, RealP4 Fx, RealP4 Fy, RealP4 Fz, Real dt, Grid_S Gr
 //Can eventually make this a function pointer
 void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 
-	int Ntot = Grid.Nv*Grid.Nz*Grid.Ny*Grid.Nx;
+	int Ntot 
 	int m=0;
 	
 	RealP4 FxH;
@@ -93,7 +93,7 @@ void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 
 	//Do all allocating on card, but can't use uninitialized pointers
 	//Stupid hack, allocate 4d on host, mirror on device, then kill host
-
+	Ntot = Grid.Nv*(Grid.Nz+1)*(Grid.Ny+1)*(Grid.Nx+1);
 	FxH = Create4Array(Grid.Nv,Grid.Nz+1,Grid.Ny+1,Grid.Nx+1);
 	FyH = Create4Array(Grid.Nv,Grid.Nz+1,Grid.Ny+1,Grid.Nx+1);
 	FzH = Create4Array(Grid.Nv,Grid.Nz+1,Grid.Ny+1,Grid.Nx+1);
@@ -103,7 +103,6 @@ void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 	Fz0 = &(FzH[0][0][0][0]);
 
 	#pragma offload target(mic:m) \
-		in(Ntot) \
 		nocopy(Flux_x:REUSE) nocopy(Fx0:length(Ntot) ALLOC) \
 		nocopy(Flux_y:REUSE) nocopy(Fy0:length(Ntot) ALLOC) \
 		nocopy(Flux_z:REUSE) nocopy(Fz0:length(Ntot) ALLOC) 
