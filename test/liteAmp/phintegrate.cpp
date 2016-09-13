@@ -4,7 +4,7 @@
 #include "amps.h"
 #include "prototypes.h"
 
-RealP4 Flux_x, Flux_y, Flux_z;
+MICTYPE RealP4 Flux_x, Flux_y, Flux_z;
 
 //MUSCL update
 void AdvanceFluid(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
