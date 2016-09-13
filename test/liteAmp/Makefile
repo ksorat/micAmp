@@ -6,7 +6,7 @@ ifeq "$(MODE)" "INTEL"
 	CC = icc
 	#CCFLAGS = -O3 -openmp -vec-report=4 -g -traceback -check-pointers=rw
 	#CCFLAGS = -O3 -openmp -vec-report=1
-	CCFLAGS = -O3 -restrict -qopenmp -g -opt-report-phase=offload
+	CCFLAGS = -O3 -restrict -openmp -g -opt-report-phase=offload
 	#CCFLAGS = -O3 -qopenmp -restrict -g -profile-functions -profile-loops=all
 	#CCFLAGS = -debug all -traceback -g -qopt-report=4
 endif
