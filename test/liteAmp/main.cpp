@@ -13,7 +13,8 @@ int main(int argc, char *argv[]) {
 	MICTYPE Grid_S Grid;
 	MICTYPE RealP4 State;
 	MICTYPE RealP4 StatePhi;
-	MICTYPE Real *StatePhi0, *State0; 
+	MICTYPE Real *StatePhi0;
+	MICTYPE Real *State0; 
 
 	int m=0; //Index of mic card
 	int Ntot;
@@ -40,7 +41,7 @@ int main(int argc, char *argv[]) {
 	{
 		StatePhi = Map4Array(StatePhi0,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
 	}
-	
+
 	printf("Initializing integrator\n");
 	//InitializeIntegrator(Grid,Model);
 
