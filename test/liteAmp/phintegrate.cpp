@@ -88,7 +88,7 @@ void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 
 	//Do all allocating on card
 	#pragma offload target(mic:m) \
-		in(Ntot,Grid) \
+		in(Ntot) \
 		nocopy(Flux_x:REUSE) nocopy(Fx0:length(Ntot) ALLOC) \
 		nocopy(Flux_y:REUSE) nocopy(Fy0:length(Ntot) ALLOC) \
 		nocopy(Flux_z:REUSE) nocopy(Fz0:length(Ntot) ALLOC) 
