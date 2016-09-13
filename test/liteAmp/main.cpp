@@ -5,7 +5,7 @@
 #include "amps.h"
 #include "prototypes.h"
 
-Model_S Model;
+MICTYPE Model_S Model;
 
 int main(int argc, char *argv[]) {
 
