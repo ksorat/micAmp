@@ -8,6 +8,7 @@
 //Define precision
 typedef double Real;
 typedef Real **** RealP4;
+#define MICTYPE __declspec(target(mic))
 
 //#define VISCOSITY
 //#define DEBUG
@@ -102,6 +103,5 @@ extern Model_S Model;
 #define REUSE alloc_if(0) free_if(0)
 #define FREE  alloc_if(0) free_if(1)
 #define RETAIN alloc_if(1) free_if(0)
-#define MICTYPE __declspec(target(mic))
 
 #endif //AMPS_H
