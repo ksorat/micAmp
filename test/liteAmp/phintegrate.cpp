@@ -85,8 +85,11 @@ void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 	int Ntot = Grid.Nv*Grid.Nz*Grid.Ny*Grid.Nx;
 	int m=0;
 	Real *Fx0,*Fy0,*Fz0;
+	Real Fd1, Fd2, Fd3; //Dummy values
 
-	//Do all allocating on card
+	//Do all allocating on card, but can't use uninitialized pointers
+	Fx0 = &(Fd1); Fy0 = &(Fd2); Fz0 = &(Fd3);
+	
 	#pragma offload target(mic:m) \
 		in(Ntot) \
 		nocopy(Flux_x:REUSE) nocopy(Fx0:length(Ntot) ALLOC) \
