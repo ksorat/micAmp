@@ -55,7 +55,6 @@ int main(int argc, char *argv[]) {
 
 	while (Grid.t < Grid.Tfin) {
 		//Evolve system
-		#pragma offload_transfer target(mic:m)  )
 		#pragma offload target(mic:m) \
 			in (State0: into(StatePhi0) length(Ntot) REUSE) \
 			out(StatePhi0: into(State0) length(Ntot) REUSE) \
