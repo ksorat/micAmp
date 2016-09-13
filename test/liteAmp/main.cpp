@@ -39,6 +39,7 @@ int main(int argc, char *argv[]) {
 
 	#pragma offload target(mic:m) in(Ntot,Grid) nocopy(StatePhi:REUSE) nocopy(StatePhi0:length(Ntot) ALLOC)
 	{
+		printf("Allocating %d %d %d %d\n",Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
 		StatePhi = Map4Array(StatePhi0,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
 	}
 
