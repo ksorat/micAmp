@@ -32,19 +32,16 @@ int main(int argc, char *argv[]) {
 	//Initialize system on host
 	initialConds(State,Grid,Model);
 	State0 = &(State[0][0][0][0]);
+
 	StatePhi0 = State0; //Avoid uninitialized pointers
-	
+
 	printf("Begin device initialization\n");
 	//Create data container on Phi
 	#pragma offload_transfer target(mic:m) nocopy(StatePhi0 : length(Ntot) ALLOC)
 
 	#pragma offload target(mic:m) in(Ntot,Grid) nocopy(StatePhi:REUSE) nocopy(StatePhi0:length(Ntot) ALLOC)
 	{
-		printf("Allocating %d %d %d %d\n",Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
 		StatePhi = Map4Array(StatePhi0,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
-		printf("Wiping main array on dev\n");
-		Wipe4Array(StatePhi,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
-		printf("Random val = %f\n",StatePhi[3,10,10,10]);
 	}
 
 	printf("Initializing integrator\n");
@@ -64,15 +61,14 @@ int main(int argc, char *argv[]) {
 
 	while (Grid.t < Grid.Tfin) {
 		//Evolve system
-		#pragma offload_transfer target(mic:m) in(State0: into(StatePhi0) length(Ntot) REUSE)
 
-		// #pragma offload target(mic:m) \
-		// 	in (State0: into(StatePhi0) length(Ntot) REUSE) \
-		// 	out(StatePhi0: into(State0) length(Ntot) REUSE) \
-		// 	nocopy(StatePhi)
-		// {
-		// 	AdvanceFluid(StatePhi, Grid, Model, Grid.dt);
-		// }
+		#pragma offload target(mic:m) \
+			in (State0: into(StatePhi0) length(Ntot) REUSE) \
+			out(StatePhi0: into(State0) length(Ntot) REUSE) \
+			nocopy(StatePhi)
+		{
+			AdvanceFluid(StatePhi, Grid, Model, Grid.dt);
+		}
 
 		//Enforce BCs
 		EnforceBCs(State, Grid, Model);
