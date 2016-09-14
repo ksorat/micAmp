@@ -4,15 +4,16 @@
 
 */
 
-#define SHEARVISC 0.05
-#define VISCSIG 0.8 //Safety factor for viscous timestep
 
 //Define precision
 typedef double Real;
 typedef Real **** RealP4;
+#define MICTYPE __declspec(target(mic))
 
-#define VISCOSITY
-#define DEBUG
+//#define VISCOSITY
+//#define DEBUG
+#define SHEARVISC 0.05
+#define VISCSIG 0.8 //Safety factor for viscous timestep
 
 #define PI 3.14159
 //Define handles for Gas[NVAR][NZ][NY][NX]
@@ -27,10 +28,23 @@ typedef Real **** RealP4;
 #define NXP 64
 #define NYP 64
 #define NZP 32
-#define NX NXP+2*NUMGHOST
-#define NY NYP+2*NUMGHOST
-#define NZ NZP+2*NUMGHOST
+#define NX (NXP+2*NUMGHOST)
+#define NY (NYP+2*NUMGHOST)
+#define NZ (NZP+2*NUMGHOST)
 
+//Block decomposition information
+#define BX 4
+#define BY 8
+#define BZ 1
+
+#define NXPBLK (NXP/BX)
+#define NYPBLK (NYP/BY)
+#define NZPBLK (NZP/BZ)
+#define NXBLK (NXPBLK+2*NUMGHOST)
+#define NYBLK (NYPBLK+2*NUMGHOST)
+#define NZBLK (NZPBLK+2*NUMGHOST)
+
+//Space and time domain information
 #define XMIN -1.0
 #define XMAX 1.0
 #define TFIN 10.0
@@ -84,6 +98,7 @@ extern Model_S Model;
 #define VELY 2
 #define VELZ 3
 #define PRESSURE 4
+
 //Conserved vars (Secondary)
 #define MOMX 1
 #define MOMY 2
@@ -95,5 +110,11 @@ extern Model_S Model;
 #define DIR_Z 2
 
 #define NDIM 3
+
+//Various defs for Intel Phi
+#define ALLOC alloc_if(1) free_if(0)
+#define REUSE alloc_if(0) free_if(0)
+#define FREE  alloc_if(0) free_if(1)
+#define RETAIN alloc_if(1) free_if(0)
 
 #endif //AMPS_H
