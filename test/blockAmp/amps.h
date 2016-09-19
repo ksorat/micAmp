@@ -33,6 +33,8 @@ typedef Real **** RealP4;
 #define NZ (NZP+2*NUMGHOST)
 
 //Block decomposition information
+//In reality, define N?PBLK @ compile-time, rest is derived at run-time
+
 #define BX 4
 #define BY 8
 #define BZ 1
@@ -67,17 +69,45 @@ typedef struct {
 	Real Xbd[2], Ybd[2], Zbd[2];
 	Real Tfin;
 
-	Real xc[NX+2*NUMGHOST];
-	Real yc[NY+2*NUMGHOST];
-	Real zc[NZ+2*NUMGHOST];
+	//These should be switched to allocated memory
+	Real xc[NX];
+	Real yc[NY];
+	Real zc[NZ];
 
-	Real xi[NX+2*NUMGHOST+1];
-	Real yi[NY+2*NUMGHOST+1];
-	Real zi[NZ+2*NUMGHOST+1];
+	Real xi[NX+1];
+	Real yi[NY+1];
+	Real zi[NZ+1];
 
 
 	int N[4], Ni[4]; //4-vectors for centered/interface quantities
 } Grid_S;
+
+//Block data structure
+//Similar to grid, but relies on known-size memory for offload simplicity
+typedef struct {
+	int Nx,  Ny,  Nz, Ng, Nv;
+	int Nxp, Nyp, Nzp;
+
+	//Loop i=is;i<=ie is physical domain
+	//Loop i=isd;i<=ied is entire domain (ie, include ghosts)
+	int is, ie, isd, ied;
+	int js, je, jsd, jed;
+	int ks, ke, ksd, ked;
+
+	int Ts;
+	Real t, dt, dx, dy, dz;
+	Real Xbd[2], Ybd[2], Zbd[2];
+	Real Tfin;
+
+	Real xc[NXBLK];
+	Real yc[NYBLK];
+	Real zc[NZBLK];
+
+	Real xi[NXBLK+1];
+	Real yi[NYBLK+1];
+	Real zi[NZBLK+1];
+
+} Block_S;
 
 typedef struct {
 	Real C0; //Courant Number
