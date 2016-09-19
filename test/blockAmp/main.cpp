@@ -30,8 +30,7 @@ int main(int argc, char *argv[]) {
 	EnforceBCs(State, Grid, Model);
 
 	//Calculate initial timestep
-	//Grid.dt = CalcDT(State,Grid,Model);
-	Grid.dt = 10.0;
+	Grid.dt = CalcDT(State,Grid,Model);
 	
 	//Do initial outputs
 	if ( (Grid.Ts) % Model.TsOut == 0 ) {
@@ -41,7 +40,6 @@ int main(int argc, char *argv[]) {
 
 	while (Grid.t < Grid.Tfin) {
 		//Evolve system
-		//AdvanceFluid(State, Grid, Model, Grid.dt);
 		BlockAdvance(State,Grid,Model,Grid.dt);
 
 		//Enforce BCs
@@ -52,7 +50,7 @@ int main(int argc, char *argv[]) {
 		Grid.t = Grid.t + Grid.dt;
 
 		//Calculate new timestep
-		//Grid.dt = CalcDT(State,Grid,Model);
+		Grid.dt = CalcDT(State,Grid,Model);
 
 		//Output if necessary
 		if ( (Grid.Ts) % Model.TsOut == 0 ) {

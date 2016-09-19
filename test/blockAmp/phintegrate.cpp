@@ -4,21 +4,21 @@
 #include "amps.h"
 #include "prototypes.h"
 
-//RealP4 Flux_x, Flux_y, Flux_z;
-
 //MUSCL update
-void AdvanceFluid(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
+void AdvanceFluid(BlockCC State, Block_S Block, Model_S Model, Real dt) {
+	BlockIC Flux_x, Flux_y, Flux_z DECALIGN;
 
-	//1-Step
-	//FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Grid);
+	//Get PCM fluxes
+	Flux_PCM(State,Flux_x,Flux_y,Flux_z,Block,Model);
+	FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block);
 
 }
 
-void FluxUpdate(RealP4 Prim, RealP4 Fx, RealP4 Fy, RealP4 Fz, Real dt, Grid_S Grid) {
-	__assume_aligned(Prim, ALIGN);
-	__assume_aligned(Fx, ALIGN);
-	__assume_aligned(Fy, ALIGN);
-	__assume_aligned(Fz, ALIGN);
+void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block_S Grid) {
+	ISALIGNED(Prim);
+	ISALIGNED(Fx);
+	ISALIGNED(Fy);
+	ISALIGNED(Fz);
 
 	int i,j,k,n;
 	Real dFx, dFy, dFz, dtox, dtoy, dtoz;

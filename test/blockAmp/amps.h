@@ -8,7 +8,7 @@
 //Define precision
 typedef double Real;
 typedef Real **** RealP4;
-#define MICTYPE __declspec(target(mic))
+
 
 //#define VISCOSITY
 //#define DEBUG
@@ -116,6 +116,12 @@ typedef struct {
 	Real Gam; //For MUSCL equation of state
 } Model_S;
 
+//Cell-centered and interface-centered state blocks
+typedef Real BlockCC[NVAR][NZBLK][NYBLK][NXBLK];
+typedef Real BlockIC[NVAR][NZBLK+1][NYBLK+1][NXBLK+1];
+//Block type for Riemann solver
+typedef Real BlockR[NVAR][VECBUFF];
+
 extern Model_S Model;
 
 #define SQR(x) ((x)*(x))
@@ -140,6 +146,13 @@ extern Model_S Model;
 #define DIR_Z 2
 
 #define NDIM 3
+
+//Decore variable as offload-able
+#define MICTYPE __declspec(target(mic))
+//Declare local array as aligned
+#define DECALIGN __attribute__((aligned(ALIGN)))
+//Direct compiler to assume alignment for passed array
+#define ISALIGNED(x) __assume_aligned(x, ALIGN)
 
 //Various defs for Intel Phi
 #define ALLOC alloc_if(1) free_if(0)

@@ -10,7 +10,8 @@ RealP4 advState;
 void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 
 	RealP4 swpState;
-	Real Qblk[NVAR][NZBLK][NYBLK][NXBLK];
+	BlockCC Qblk DECALIGN;
+	Block_S Block;
 
 	int iblk,jblk,kblk,nblk;
 	int i,j,k,nv,kP,jP,iP;
@@ -25,11 +26,13 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 		for (jblk=0;jblk<BY;jblk++) {
 			for (iblk=0;iblk<BX;iblk++) {
 				printf("Block %d (%d,%d,%d)\n",nblk,iblk,jblk,kblk);
-
+				InitBlock(&Block,Grid,iblk,jblk,kblk);
+				
 				//Copy from State->Block
 				CopyinBlock(State,Qblk,Grid,iblk,jblk,kblk);
 
 				//Advance sub-block
+				AdvanceFluid(Qblk,Block,Model,Grid.dt);
 
 				//Copy advanced sub-block back into advState holder
 				//Avoid ghosts
@@ -39,9 +42,10 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 			}
 		}
 	} //Loop over blocks
-
+	printf("Finished block update, x-fer back\n");
 	//Now swap advState and State pointers so that State is updated
 	Copy4Array(State,advState,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
+	printf("Finished x-fer\n");
 }
 
 //Initialize big data storage objects for fluxes/delta-state etc
@@ -59,7 +63,7 @@ void DestroyIntegrator(Grid_S Grid, Model_S Model) {
 	Kill4Array(advState);
 }
 
-void CopyinBlock(RealP4 Q, Real Qblk[NVAR][NZBLK][NYBLK][NXBLK], Grid_S Grid, int iBlk, int jBlk, int kBlk) {
+void CopyinBlock(RealP4 Q, BlockCC Qblk, Grid_S Grid, int iBlk, int jBlk, int kBlk) {
 
 	int isB,ieB,jsB,jeB,ksB,keB;
 	int nv,i,j,k;
@@ -88,7 +92,7 @@ void CopyinBlock(RealP4 Q, Real Qblk[NVAR][NZBLK][NYBLK][NXBLK], Grid_S Grid, in
 					jP = (jsB-Ng)+j;
 					iP = (isB-Ng)+i;
 					Qblk[nv][k][j][i] = Q[nv][kP][jP][iP];
-					Qblk[nv][k][j][i] = kBlk*BX*BY + jBlk*BX + iBlk;
+					//Qblk[nv][k][j][i] = kBlk*BX*BY + jBlk*BX + iBlk;
 				}
 			}
 		}
@@ -96,7 +100,7 @@ void CopyinBlock(RealP4 Q, Real Qblk[NVAR][NZBLK][NYBLK][NXBLK], Grid_S Grid, in
 
 }
 
-void CopyoutBlock(RealP4 Q, Real Qblk[NVAR][NZBLK][NYBLK][NXBLK], Grid_S Grid, int iBlk, int jBlk, int kBlk) {
+void CopyoutBlock(RealP4 Q, BlockCC Qblk, Grid_S Grid, int iBlk, int jBlk, int kBlk) {
 	int isB,ieB,jsB,jeB,ksB,keB;
 	int nv,i,j,k;
 
@@ -121,6 +125,7 @@ void CopyoutBlock(RealP4 Q, Real Qblk[NVAR][NZBLK][NYBLK][NXBLK], Grid_S Grid, i
 	} //4D block loop
 
 }
+
 
 //Initializes Block data structure for a given block index
 void InitBlock(Block_S *Block, Grid_S Grid, int iBlk, int jBlk, int kBlk) {

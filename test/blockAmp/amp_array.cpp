@@ -78,3 +78,32 @@ void Copy4Array(RealP4 A, RealP4 B, int N1, int N2, int N3, int N4) {
 		}
 	}
 }
+
+
+//Zeros out block
+void WipeBlockCC(BlockCC A, Block_S Block) {
+	int n,i,j,k;
+	for (n=0;n<NVAR;n++) {
+		for (k=Block.ksd;k<=Block.ked;k++) {
+			for (j=Block.jsd;j<=Block.jed;j++) {
+				for (i=Block.isd;i<=Block.ied;i++) {
+					A[n][k][j][i] = 0.0;
+				}
+			}
+		}
+	} //Block loop
+}
+
+//Zeros out block
+void WipeBlockIC(BlockIC A, Block_S Block) {
+	int n,i,j,k;
+	for (n=0;n<NVAR;n++) {
+		for (k=Block.ksd;k<=Block.ked+1;k++) {
+			for (j=Block.jsd;j<=Block.jed+1;j++) {
+				for (i=Block.isd;i<=Block.ied+1;i++) {
+					A[n][k][j][i] = 0.0;
+				}
+			}
+		}
+	} //Block loop
+}
