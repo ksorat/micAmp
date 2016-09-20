@@ -13,39 +13,36 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 	BlockCC Qblk DECALIGN;
 	Block_S Block;
 
-	int iblk,jblk,kblk,nblk;
-	int i,j,k,nv,kP,jP,iP;
+	int iblk,jblk,kblk;
 	
 
+	//printf("Inside block advance\n");
 	int Ng = Grid.Ng;
-	printf("Breaking grid into %d (%d,%d,%d) blocks\n",BX*BY*BZ,NXPBLK,NYPBLK,NZPBLK);
+	//printf("Breaking grid into %d (%d,%d,%d) blocks\n",BX*BY*BZ,NXPBLK,NYPBLK,NZPBLK);
 
-	nblk = 0;
 	//Loop over blocks
 	for (kblk=0;kblk<BZ;kblk++) {
 		for (jblk=0;jblk<BY;jblk++) {
 			for (iblk=0;iblk<BX;iblk++) {
-				printf("Block %d (%d,%d,%d)\n",nblk,iblk,jblk,kblk);
+				
 				InitBlock(&Block,Grid,iblk,jblk,kblk);
 				
 				//Copy from State->Block
-				CopyinBlock(State,Qblk,Grid,iblk,jblk,kblk);
+				CopyinBlock(State,Qblk,Grid,Block);
 
 				//Advance sub-block
 				AdvanceFluid(Qblk,Block,Model,Grid.dt);
 
 				//Copy advanced sub-block back into advState holder
 				//Avoid ghosts
-				CopyoutBlock(advState,Qblk,Grid,iblk,jblk,kblk);
-
-				nblk++;
+				CopyoutBlock(advState,Qblk,Grid,Block);
 			}
 		}
 	} //Loop over blocks
-	printf("Finished block update, x-fer back\n");
+	//printf("Finished block update, x-fer back\n");
 	//Now swap advState and State pointers so that State is updated
 	Copy4Array(State,advState,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
-	printf("Finished x-fer\n");
+	//printf("Finished x-fer\n");
 }
 
 //Initialize big data storage objects for fluxes/delta-state etc
@@ -63,66 +60,51 @@ void DestroyIntegrator(Grid_S Grid, Model_S Model) {
 	Kill4Array(advState);
 }
 
-void CopyinBlock(RealP4 Q, BlockCC Qblk, Grid_S Grid, int iBlk, int jBlk, int kBlk) {
 
-	int isB,ieB,jsB,jeB,ksB,keB;
+//Copy from Grid into sub-block (include ghosts)
+void CopyinBlock(RealP4 Q, BlockCC Qblk, Grid_S Grid, Block_S Block) {
 	int nv,i,j,k;
-	int iP,jP,kP;
+	int DelI,DelJ,DelK;
 
-	int Ng=Grid.Ng;
+	DelK = Block.ked-Block.ksd;
+	DelJ = Block.jed-Block.jsd;
+	DelI = Block.ied-Block.isd;
 
-	//Copy into sub-block (include ghosts)
-	isB = Grid.is + iBlk*NXPBLK;
-	ieB = isB + NXPBLK;
-	jsB = Grid.js + jBlk*NYPBLK;
-	jeB = jsB + NYPBLK;
-	ksB = Grid.ks + kBlk*NZPBLK;
-	keB = ksB + NZPBLK;
-
-	printf("\t(is,ie) = (%d,%d)\n",isB,ieB);
-	printf("\t(js,je) = (%d,%d)\n",jsB,jeB);
-	printf("\t(ks,ke) = (%d,%d)\n",ksB,keB);	
-
+	//printf("Del-(ijk) = %d, %d, %d\n",DelI,DelJ,DelK);
 	for (nv=0;nv<NVAR;nv++) {
-		for (k=0;k<NZBLK;k++) {
-			for (j=0;j<NYBLK;j++) {
-				for (i=0;i<NXBLK;i++) {
-
-					kP = (ksB-Ng)+k;
-					jP = (jsB-Ng)+j;
-					iP = (isB-Ng)+i;
-					Qblk[nv][k][j][i] = Q[nv][kP][jP][iP];
-					//Qblk[nv][k][j][i] = kBlk*BX*BY + jBlk*BX + iBlk;
+		for (k=0;k<=DelK;k++) {
+			for (j=0;j<=DelJ;j++) {
+				for (i=0;i<=DelI;i++) {	
+					//printf("%d %d %d %d\n",nv,k,j,i);
+					Qblk[nv][Block.ksd+k][Block.jsd+j][Block.isd+i] = Q[nv][Block.ksdG+k][Block.jsdG+j][Block.isdG+i];
 				}
 			}
 		}
-	} //4D block loop
-
+	}
+	//printf("Done copy\n");
 }
 
-void CopyoutBlock(RealP4 Q, BlockCC Qblk, Grid_S Grid, int iBlk, int jBlk, int kBlk) {
-	int isB,ieB,jsB,jeB,ksB,keB;
+//Copy out sub-block into main grid (don't include ghosts)
+void CopyoutBlock(RealP4 Q, BlockCC Qblk, Grid_S Grid, Block_S Block) {
+
 	int nv,i,j,k;
+	int DelI,DelJ,DelK;
 
-	int Ng=Grid.Ng;
+	
+	DelK = Block.ke-Block.ks;
+	DelJ = Block.je-Block.js;
+	DelI = Block.ie-Block.is;
 
-	//Copy out sub-block into main grid (don't include ghosts)
-	isB = Grid.is + iBlk*NXPBLK;
-	ieB = isB + NXPBLK;
-	jsB = Grid.js + jBlk*NYPBLK;
-	jeB = jsB + NYPBLK;
-	ksB = Grid.ks + kBlk*NZPBLK;
-	keB = ksB + NZPBLK;
-
+	//printf("Copy out\n");
 	for (nv=0;nv<NVAR;nv++) {
-		for (k=0;k<NZPBLK;k++) {
-			for (j=0;j<NYPBLK;j++) {
-				for (i=0;i<NXPBLK;i++) {
-					Q[nv][ksB+k][jsB+j][isB+i] = Qblk[nv][k+Ng][j+Ng][i+Ng];
+		for (k=0;k<=DelK;k++) {
+			for (j=0;j<=DelJ;j++) {
+				for (i=0;i<=DelI;i++) {	
+					 Q[nv][Block.ksG+k][Block.jsG+j][Block.isG+i] = Qblk[nv][Block.ks+k][Block.js+j][Block.is+i];
 				}
 			}
 		}
-	} //4D block loop
+	}
 
 }
 
@@ -131,6 +113,7 @@ void CopyoutBlock(RealP4 Q, BlockCC Qblk, Grid_S Grid, int iBlk, int jBlk, int k
 void InitBlock(Block_S *Block, Grid_S Grid, int iBlk, int jBlk, int kBlk) {
 
 	int Ng=Grid.Ng; //Use variable for generality, ie varying # of ghosts
+
 	Block->Nv = NVAR;
 	Block->Ng = Ng;
 
@@ -143,7 +126,10 @@ void InitBlock(Block_S *Block, Grid_S Grid, int iBlk, int jBlk, int kBlk) {
 	Block->Nz = NZBLK + 2*Ng;
 
 	Block->t = Grid.t;
+
 	Block->dt = Grid.dt;
+	Block->dx = Grid.dx; Block->dy = Grid.dy; Block->dz = Grid.dz;
+
 	Block->Ts = Grid.Ts;
 
 	//Set ?Bds, x/y/z-c/i
@@ -155,5 +141,25 @@ void InitBlock(Block_S *Block, Grid_S Grid, int iBlk, int jBlk, int kBlk) {
 
 	Block->ksd = 0;               Block->ked = NZBLK-1;
 	Block->ks  = Block->ksd + Ng; Block->ke  = Block->ked - Ng; 
+
+	//Set global bounds for reverse map
+	Block->isG  = Grid.is + iBlk*NXPBLK; Block->ieG  = Block->isG + NXPBLK-1;
+	Block->isdG = Block->isG - Ng;       Block->iedG = Block->ieG + Ng;
+
+	Block->jsG  = Grid.js + jBlk*NYPBLK; Block->jeG  = Block->jsG + NYPBLK-1;
+	Block->jsdG = Block->jsG - Ng;       Block->jedG = Block->jeG + Ng;
+
+	Block->ksG  = Grid.ks + kBlk*NZPBLK; Block->keG  = Block->ksG + NZPBLK-1;
+	Block->ksdG = Block->ksG - Ng;       Block->kedG = Block->keG + Ng;
+
+
+	// printf("Block (%d,%d,%d)\n",iBlk,jBlk,kBlk);
+	// printf("\tLocal <-> Global\n");
+	// printf("\tX: [%d,%d] <-> [%d,%d]\n",Block->is,Block->ie,Block->isG,Block->ieG);
+	// printf("\tY: [%d,%d] <-> [%d,%d]\n",Block->js,Block->je,Block->jsG,Block->jeG);
+	// printf("\tZ: [%d,%d] <-> [%d,%d]\n",Block->ks,Block->ke,Block->ksG,Block->keG);
+	// printf("\t\tXd: [%d,%d] <-> [%d,%d]\n",Block->isd,Block->ied,Block->isdG,Block->iedG);
+	// printf("\t\tYd: [%d,%d] <-> [%d,%d]\n",Block->jsd,Block->jed,Block->jsdG,Block->jedG);
+	// printf("\t\tZd: [%d,%d] <-> [%d,%d]\n",Block->ksd,Block->ked,Block->ksdG,Block->kedG);
 
 }

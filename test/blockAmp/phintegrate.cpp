@@ -9,10 +9,12 @@ void AdvanceFluid(BlockCC State, Block_S Block, Model_S Model, Real dt) {
 	BlockIC Flux_x, Flux_y, Flux_z DECALIGN;
 
 	//Get PCM fluxes
+	//printf("Calculating fluxes\n");
 	Flux_PCM(State,Flux_x,Flux_y,Flux_z,Block,Model);
+	//printf("Applying fluxes\n");
 	FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block);
-
-}
+	//printf("Fluid advance complete\n");
+}	
 
 void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block_S Grid) {
 	ISALIGNED(Prim);
@@ -28,11 +30,11 @@ void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block
 	//Use dt from argument instead of Grid for multi-step methods
 	dtox = dt/Grid.dx; dtoy = dt/Grid.dy; dtoz = dt/Grid.dz;
 
- 	#pragma omp parallel for collapse(2) \
- 		default(shared) private(rho,E,Mx,My,Mz,P,dFx,dFy,dFz)
+ 	//#pragma omp parallel for collapse(2) \
+ 		//default(shared) private(rho,E,Mx,My,Mz,P,dFx,dFy,dFz)
 	for (k=Grid.ksd;k<=Grid.ked;k++) {
 		for (j=Grid.jsd;j<=Grid.jed;j++) {
-			#pragma omp simd
+			//#pragma omp simd
 			for (i=Grid.isd;i<=Grid.ied;i++) {
 				//In - Out, downward located fluxes
 
@@ -57,6 +59,10 @@ void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block
 				My  += dtox*( Fx[MOMY][k][j][i] - Fx[MOMY][k][j][i+1] )
 					+  dtoy*( Fy[MOMY][k][j][i] - Fy[MOMY][k][j+1][i] )
 					+  dtoz*( Fz[MOMY][k][j][i] - Fz[MOMY][k+1][j][i] );
+
+				Mz  += dtox*( Fx[MOMZ][k][j][i] - Fx[MOMZ][k][j][i+1] )
+					+  dtoy*( Fy[MOMZ][k][j][i] - Fy[MOMZ][k][j+1][i] )
+					+  dtoz*( Fz[MOMZ][k][j][i] - Fz[MOMZ][k+1][j][i] );
 
 				E   += dtox*( Fx[TOTE][k][j][i] - Fx[TOTE][k][j][i+1] )
 					+  dtoy*( Fy[TOTE][k][j][i] - Fy[TOTE][k][j+1][i] )

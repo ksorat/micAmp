@@ -20,14 +20,13 @@ typedef Real **** RealP4;
 #define NVAR 5
 #define NUMGHOST 4
 #define VECBUFF 16 //Buffer size for vector functions (MUSCL)
-#define VECBUFFV 16 //Buffer size for vector functions (Viscous)
-#define ALIGN 32
+#define ALIGN 64
 #define TINY 1.0e-6
 
 //For now, simply define resolution/domain
-#define NXP 64
+#define NXP 128
 #define NYP 64
-#define NZP 32
+#define NZP 64
 #define NX (NXP+2*NUMGHOST)
 #define NY (NYP+2*NUMGHOST)
 #define NZ (NZP+2*NUMGHOST)
@@ -35,9 +34,9 @@ typedef Real **** RealP4;
 //Block decomposition information
 //In reality, define N?PBLK @ compile-time, rest is derived at run-time
 
-#define BX 4
-#define BY 8
-#define BZ 1
+#define BX (2)
+#define BY (4)
+#define BZ (4)
 
 #define NXPBLK (NXP/BX)
 #define NYPBLK (NYP/BY)
@@ -50,7 +49,7 @@ typedef Real **** RealP4;
 #define XMIN -1.0
 #define XMAX 1.0
 #define TFIN 10.0
-#define TSOUT 1
+#define TSOUT 10
 
 
 typedef struct {
@@ -90,9 +89,15 @@ typedef struct {
 
 	//Loop i=is;i<=ie is physical domain
 	//Loop i=isd;i<=ied is entire domain (ie, include ghosts)
+	//This is local info
 	int is, ie, isd, ied;
 	int js, je, jsd, jed;
 	int ks, ke, ksd, ked;
+
+	//How to map from local->global
+	int isG, ieG, isdG, iedG;
+	int jsG, jeG, jsdG, jedG;
+	int ksG, keG, ksdG, kedG;
 
 	int Ts;
 	Real t, dt, dx, dy, dz;
@@ -108,6 +113,7 @@ typedef struct {
 	Real zi[NZBLK+1];
 
 } Block_S;
+
 
 typedef struct {
 	Real C0; //Courant Number

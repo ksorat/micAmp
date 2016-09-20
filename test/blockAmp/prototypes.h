@@ -36,8 +36,8 @@ void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block
 void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt);
 void InitializeIntegrator(Grid_S Grid, Model_S Model);
 void DestroyIntegrator(Grid_S Grid, Model_S Model);
-void CopyinBlock (RealP4 Q, BlockCC Qblk, Grid_S Grid, int iBlk, int jBlk, int kBlk);
-void CopyoutBlock(RealP4 Q, BlockCC Qblk, Grid_S Grid, int iBlk, int jBlk, int kBlk);
+void CopyinBlock (RealP4 Q, BlockCC Qblk, Grid_S Grid, Block_S Block);
+void CopyoutBlock(RealP4 Q, BlockCC Qblk, Grid_S Grid, Block_S Block);
 void InitBlock(Block_S *Block, Grid_S Grid, int iBlk, int jBlk, int kBlk);
 
 //File: flux.cpp

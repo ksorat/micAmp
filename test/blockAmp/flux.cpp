@@ -11,12 +11,13 @@ void Flux_PCM(BlockCC W,BlockIC Fx,BlockIC Fy,BlockIC Fz,Block_S Block,Model_S M
 	ISALIGNED(Fy);
 	ISALIGNED(Fz);
 
-    //LRs2Flux(W,W,Fx,DIR_X,Block);
-    //LRs2Flux(W,W,Fy,DIR_Y,Block);
-    //LRs2Flux(W,W,Fz,DIR_Z,Block);
 	WipeBlockIC(Fx,Block);
 	WipeBlockIC(Fy,Block);
 	WipeBlockIC(Fz,Block);
+    LRs2Flux(W,W,Fx,DIR_X,Block);
+    LRs2Flux(W,W,Fy,DIR_Y,Block);
+    LRs2Flux(W,W,Fz,DIR_Z,Block);
+	
 }
 
 //Takes *CELL* L/R values and a direction, returns flux

@@ -54,14 +54,12 @@ Real CalcDT(RealP4 State, Grid_S Grid, Model_S Model) {
 
 	Real SMALL_DT = 1.0e-10;
 	Real dx_min, dx_max, dx_mean, Vmax, Vx, Vy, Vz, Vsq, Vabs, Cs;
-	Real dt, dt_V, dt_Mu, dt_Lam;
-	Real Re, ReMin;
-
-	Real Om_Max;
+	Real dt, dt_V;
+	//Real Re, ReMin;
 
 	dx_min = std::min(Grid.dx, std::min(Grid.dy, Grid.dz));
 	dx_max = std::max(Grid.dx, std::max(Grid.dy, Grid.dz));
-	dx_mean = pow(3*0.25*Grid.dx*Grid.dy*Grid.dz/PI,1.0/3);
+	//dx_mean = pow(3*0.25*Grid.dx*Grid.dy*Grid.dz/PI,1.0/3);
 
 	//Calculate timestep
 	// dt = CFL * min{ dx/v+c, rho*dx2/mu, rho*cp*dx2/lam } : ACM
@@ -69,7 +67,7 @@ Real CalcDT(RealP4 State, Grid_S Grid, Model_S Model) {
 
 
 	//Find largest velocity on grid
-	Vmax = 0.0; ReMin = HUGE; Re = 0.0;
+	Vmax = 0.0; //ReMin = HUGE; Re = 0.0;
 	for (k=Grid.ks;k<=Grid.ke;k++) {
 		for (j=Grid.js;j<=Grid.je;j++) {
 			for (i=Grid.is;i<=Grid.ie;i++) {
@@ -82,8 +80,8 @@ Real CalcDT(RealP4 State, Grid_S Grid, Model_S Model) {
 				Vsq = sqrt( Vx*Vx + Vy*Vy + Vz*Vz );
 				Vabs = Vsq + Cs;
 				Vmax = fmax(Vmax, Vabs);
-				Re = State[DEN][k][j][i]*Vabs*dx_mean/SHEARVISC;
-				ReMin = fmin(Re,ReMin);
+				//Re = State[DEN][k][j][i]*Vabs*dx_mean/SHEARVISC;
+				//ReMin = fmin(Re,ReMin);
 			}
 		}
 	}
@@ -92,7 +90,7 @@ Real CalcDT(RealP4 State, Grid_S Grid, Model_S Model) {
 	dt_V = dx_min/Vmax;
 
 	dt = Model.C0*dt_V;
-	dt = VISCSIG*dt/(1+ (2/ReMin));
+	//dt = VISCSIG*dt/(1+ (2/ReMin));
 	return dt;
 }
 

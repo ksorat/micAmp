@@ -37,11 +37,11 @@ int main(int argc, char *argv[]) {
 		toConsole(State,Grid,Model);
 		toVTK(State,Grid,Model); 
 	}	
-
+	
 	while (Grid.t < Grid.Tfin) {
 		//Evolve system
 		BlockAdvance(State,Grid,Model,Grid.dt);
-
+		
 		//Enforce BCs
 		EnforceBCs(State, Grid, Model);
 

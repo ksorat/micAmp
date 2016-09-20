@@ -78,6 +78,10 @@ void FluxUpdate(RealP4 Prim, RealP4 Fx, RealP4 Fy, RealP4 Fz, Real dt, Grid_S Gr
 					+  dtoy*( Fy[MOMY][k][j][i] - Fy[MOMY][k][j+1][i] )
 					+  dtoz*( Fz[MOMY][k][j][i] - Fz[MOMY][k+1][j][i] );
 
+				Mz  += dtox*( Fx[MOMZ][k][j][i] - Fx[MOMZ][k][j][i+1] )
+					+  dtoy*( Fy[MOMZ][k][j][i] - Fy[MOMZ][k][j+1][i] )
+					+  dtoz*( Fz[MOMZ][k][j][i] - Fz[MOMZ][k+1][j][i] );
+
 				E   += dtox*( Fx[TOTE][k][j][i] - Fx[TOTE][k][j][i+1] )
 					+  dtoy*( Fy[TOTE][k][j][i] - Fy[TOTE][k][j+1][i] )
 					+  dtoz*( Fz[TOTE][k][j][i] - Fz[TOTE][k+1][j][i] );
