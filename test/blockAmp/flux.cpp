@@ -104,7 +104,10 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 					Flx[Vt1][k][j][iG] = FluxLR[VELY][i];
 					Flx[Vt2][k][j][iG] = FluxLR[VELZ][i];
 					Flx[PRESSURE][k][j][iG] = FluxLR[PRESSURE][i];
-				}		
+				}	
+				for (i=0;i<iLim;i++) {
+					printf("Flx[%d] = %f\n",Flx[i]);
+				}	
 
 			}
 		}

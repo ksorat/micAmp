@@ -165,7 +165,7 @@ void CopyoutBlock(RealP4 Q, BlockCC Qblk, Grid_S Grid, Block_S Block) {
 		for (k=0;k<=DelK;k++) {
 			for (j=0;j<=DelJ;j++) {
 				for (i=0;i<=DelI;i++) {	
-					printf("Qblk[%d][%d][%d][%d] = %f\n", nv,k,j,i,Qblk[nv][Block.ks+k][Block.js+j][Block.is+i]);
+					//printf("Qblk[%d][%d][%d][%d] = %f\n", nv,k,j,i,Qblk[nv][Block.ks+k][Block.js+j][Block.is+i]);
 					Q[nv][Block.ksG+k][Block.jsG+j][Block.isG+i] = Qblk[nv][Block.ks+k][Block.js+j][Block.is+i];
 				}
 			}
