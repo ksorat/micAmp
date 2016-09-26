@@ -8,6 +8,7 @@
 void AdvanceFluid(BlockCC State, Block_S Block, Model_S Model, Real dt) {
 	BlockIC Flux_x, Flux_y, Flux_z DECALIGN;
 
+	printf("dt = %f\n",dt);
 	//Get PCM fluxes
 	DEBUG_MSG("Calculating fluxes\n");
 
