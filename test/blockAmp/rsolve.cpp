@@ -32,8 +32,8 @@ void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR) {
 	
 	
 	//Calculate wave speeds/scale factor
-	//#pragma omp simd private(cfl,cfr,al,ar)
 	#pragma omp simd private(cfl,cfr,al,ar)
+	//#pragma omp simd
 	for (i=0;i<VECBUFF;i++) {
 		cfl = sqrt( Gam*LeftW [PRESSURE][i]/LeftW [DEN][i] );
 		cfr = sqrt( Gam*RightW[PRESSURE][i]/RightW[DEN][i] );
@@ -72,6 +72,7 @@ void Roes_Vec(BlockR LeftW,BlockR RightW,BlockR RoeLR,BlockR evals) {
 	const Real Gam = Model.Gam;
 
 	#pragma omp simd private(invD,hL,hR,vsq,asq,a)
+	//#pragma omp simd
 	for (i=0;i<VECBUFF;i++) {
 		RoeLR[DEN][i] = sqrt( LeftW[DEN][i]*RightW[DEN][i] );
 		invD = 1.0/( sqrt(LeftW[DEN][i]) + sqrt(RightW[DEN][i]) );
@@ -113,6 +114,7 @@ void CalcLR_Fluxes(BlockR LeftW, BlockR RightW, BlockR Fl, BlockR Fr, Real bm[VE
 	
 
 	#pragma omp simd private(vL,vR,El,Er)
+	//#pragma omp simd
 	for (i=0;i<VECBUFF;i++) {
 		vL = LeftW [VELX][i] - bm[i];
 		vR = RightW[VELX][i] - bp[i];

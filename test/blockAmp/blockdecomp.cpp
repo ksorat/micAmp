@@ -65,15 +65,16 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 				//Copy advanced sub-block back into advState holder
 				//Avoid ghosts
 				CopyoutBlock(advState,Qblk,Grid,*myBlock);
+
 				}//Critical
 			}
 		}
 	} //Loop over blocks
-	
+
 	//printf("Finished block update, x-fer back\n");
 	//Now swap advState and State pointers so that State is updated
 	Copy4Array(State,advState,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
-	//printf("Finished x-fer\n");
+	
 }
 
 //Initialize big data storage objects for fluxes/delta-state etc

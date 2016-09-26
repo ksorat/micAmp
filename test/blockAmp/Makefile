@@ -27,7 +27,7 @@ ifneq (, $(findstring smic,$(HOST)))
 endif
 
 ifeq "$(ARCH)" "MAC"
-	CCFLAGS = -O3 -qopenmp -g -Wl,-stack_size,0x40000000,-stack_addr,0xf0000000
+	CCFLAGS = -O3 -qopt-report3 -qopenmp -g -Wl,-stack_size,0x40000000,-stack_addr,0xf0000000
 	CCFLAGS += -DNUMSBS=$(NUMSBS) -DTPSB=$(TPSB)
 endif
 ifeq "$(ARCH)" "PHI"
@@ -35,6 +35,7 @@ ifeq "$(ARCH)" "PHI"
 	CCFLAGS = -O3 -openmp -g -opt-report-phase=offload -D DOPHI
 	CCFLAGS += -DTPC=$(TPC) -DSBPDEV=$(SBPDEV)
 endif
+
 #-Wl,-stack_size,0x10000000 /256MB
 #-Wl,-stack_size,0x40000000,-stack_addr,0xf0000000 /1GB
 #CCFLAGS = -debug all -traceback -g 
