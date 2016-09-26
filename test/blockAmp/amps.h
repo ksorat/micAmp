@@ -25,8 +25,8 @@ typedef Real **** RealP4;
 // #define NYP 64
 // #define NZP 64
 #define NXP 32
-#define NYP 4
-#define NZP 4
+#define NYP 64
+#define NZP 64
 
 #define NUMGHOST 4
 #define VECBUFF 16 //Buffer size for vector functions (MUSCL)
@@ -149,6 +149,12 @@ typedef Real BlockR[NVAR][VECBUFF];
 //Simplifying DEFs
 #define SQR(x) ((x)*(x))
 #define IMIN(a,b) ((a) < (b) ? a : b)
+
+#ifdef DEBUG
+	#define DEBUG_MSG(x) printf(x)
+#else
+	#define DEBUG_MSG(x) 
+#endif
 
 
 //Prim vars (Main variable)

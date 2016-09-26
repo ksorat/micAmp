@@ -128,7 +128,6 @@ void PrintBlockCC(BlockCC A, Block_S Block) {
 	} //Block loop
 }
 
-//Prints out block
 void PrintBlockIC(BlockIC A, Block_S Block) {
 	int n,i,j,k;
 	for (n=0;n<NVAR;n++) {
@@ -142,4 +141,15 @@ void PrintBlockIC(BlockIC A, Block_S Block) {
 			}
 		}
 	} //Block loop
+}
+
+void PrintBlockR(BlockR A) {
+	int n,i;
+	for (n=0;n<NVAR;n++) {
+		printf("NV = %d / ",n);
+		for (i=0;i<VECBUFF;i++) {
+			printf("%f ",A[n][i]);
+		}
+		printf("\n");
+	}
 }

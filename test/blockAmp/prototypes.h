@@ -23,6 +23,7 @@ MICTYPE void WipeBlockCC(BlockCC A, Block_S Block);
 MICTYPE void WipeBlockIC(BlockIC A, Block_S Block);
 MICTYPE void PrintBlockCC(BlockCC A, Block_S Block);
 MICTYPE void PrintBlockIC(BlockIC A, Block_S Block);
+MICTYPE void PrintBlockR(BlockR A);
 
 //File: amp_output.cpp
 void toConsole(RealP4 State, Grid_S Grid, Model_S Model);

@@ -58,7 +58,7 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 	//Wipe flux array
 	WipeBlockIC(Flx,Grid);
 	//Asymmetric bounds b/c of flux centering
- 	#pragma omp parallel for collapse(3) \
+ 	#pragma omp parallel for collapse(2) \
  		num_threads(TpSB) \
  		default(shared) private(i,j,k,iLim,iG,iblk,LeftW,RightW,FluxLR)
 	for (k=Grid.ksd+1;k<=Grid.ked;k++) {
@@ -90,16 +90,10 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 					RightW[PRESSURE][i] = lW[PRESSURE][k][j][iG];
 
 				}
-				for (i=0;i<iLim;i++) {
-					printf("i (%d): Left/Right = %f / %f\n",i,LeftW[0,i],RightW[0,i]);
-				}	
 
 				//Call Riemann solver
 				RiemannFluxHLLE(LeftW,RightW,FluxLR);
-
-				for (i=0;i<iLim;i++) {
-					printf("i (%d): FluxLR = %f\n",i,FluxLR[0,i]);
-				}	
+				//PrintBlockR(FluxLR);
 
 				//Unpack into fluxes
 				//Untwist back to original coordinate system

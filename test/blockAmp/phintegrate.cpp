@@ -9,15 +9,15 @@ void AdvanceFluid(BlockCC State, Block_S Block, Model_S Model, Real dt) {
 	BlockIC Flux_x, Flux_y, Flux_z DECALIGN;
 
 	//Get PCM fluxes
-	printf("Calculating fluxes\n");
+	DEBUG_MSG("Calculating fluxes\n");
 
 	Flux_PCM(State,Flux_x,Flux_y,Flux_z,Block,Model);
 	//PrintBlockIC(Flux_x,Block);
 
-	printf("Applying fluxes\n");
+	DEBUG_MSG("Applying fluxes\n");
 	FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block);
 	
-	printf("Fluid advance complete\n");
+	DEBUG_MSG("Fluid advance complete\n");
 	
 }	
 
