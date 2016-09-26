@@ -33,7 +33,7 @@ void WriteVar(std::string varname, int varnum, Real ****State, Grid_S Grid, FILE
 
 //File: phintegrate.cpp
 MICTYPE void AdvanceFluid(BlockCC State, Block_S Block, Model_S Model, Real dt);
-MICTYPE void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block_S Grid);
+MICTYPE void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block_S Grid, Model_S Model);
 
 //File: blockdecomp.cpp
 void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt);

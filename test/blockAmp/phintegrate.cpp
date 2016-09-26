@@ -16,13 +16,13 @@ void AdvanceFluid(BlockCC State, Block_S Block, Model_S Model, Real dt) {
 	//PrintBlockIC(Flux_x,Block);
 
 	DEBUG_MSG("Applying fluxes\n");
-	FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block);
+	FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block,Model);
 	
 	DEBUG_MSG("Fluid advance complete\n");
 	
 }	
 
-void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block_S Grid) {
+void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block_S Grid, Model_S Model) {
 	ISALIGNED(Prim);
 	ISALIGNED(Fx);
 	ISALIGNED(Fy);
@@ -33,7 +33,6 @@ void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block
 	Real rho, E, Mx,My,Mz, P;
 
 	const Real Gam = Model.Gam;
-	printf("FU Gam = %f\n", Gam);
 
 	//Use dt from argument instead of Grid for multi-step methods
 	dtox = dt/Grid.dx; dtoy = dt/Grid.dy; dtoz = dt/Grid.dz;
