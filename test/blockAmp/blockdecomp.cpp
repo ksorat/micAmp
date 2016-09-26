@@ -44,7 +44,9 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 				
 				tID = omp_get_thread_num();
 				devID = (NumDevs>0) ? (tID % NumDevs) : 0;
-				printf("tID/devID = %d %d\n", tID,devID);
+				
+				//printf("tID/devID = %d %d\n", tID,devID);
+
 				myBlock = &(SubBlocks[kblk][jblk][iblk]);
 
 				//Copy from State->Block
@@ -57,7 +59,7 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 				#endif
 				{
 					//Advance sub-block
-					//AdvanceFluid(Qblk,*myBlock,Model,Grid.dt);
+					AdvanceFluid(Qblk,*myBlock,Model,Grid.dt);
 				}
 				//Copy advanced sub-block back into advState holder
 				//Avoid ghosts
