@@ -20,9 +20,13 @@ typedef Real **** RealP4;
 //Various defined parameters
 //Define handles for Gas[NVAR][NZ][NY][NX]
 #define NVAR 5
+
 #define NXP 128
 #define NYP 64
 #define NZP 64
+#define NXP 32
+#define NYP 16
+#define NZP 16
 
 #define NUMGHOST 4
 #define VECBUFF 16 //Buffer size for vector functions (MUSCL)
@@ -33,10 +37,6 @@ typedef Real **** RealP4;
 #define VISCSIG 0.8 //Safety factor for viscous timestep
 #define PI 3.14159
 
-//Derived grid parameters
-#define NX (NXP+2*NUMGHOST)
-#define NY (NYP+2*NUMGHOST)
-#define NZ (NZP+2*NUMGHOST)
 //--------------------------------------------------------------
 
 //Block decomposition information
@@ -45,13 +45,24 @@ typedef Real **** RealP4;
 #define BY (4)
 #define BZ (4)
 
+#define BX (1)
+#define BY (2)
+#define BZ (2)
+
 #define NXPBLK (NXP/BX)
 #define NYPBLK (NYP/BY)
 #define NZPBLK (NZP/BZ)
+
+//--------------------------------------------------------------
+
+//Derived grid paramters
+#define NX (NXP+2*NUMGHOST)
+#define NY (NYP+2*NUMGHOST)
+#define NZ (NZP+2*NUMGHOST)
+
 #define NXBLK (NXPBLK+2*NUMGHOST)
 #define NYBLK (NYPBLK+2*NUMGHOST)
 #define NZBLK (NZPBLK+2*NUMGHOST)
-
 
 //--------------------------------------------------------------
 
@@ -166,6 +177,7 @@ typedef Real BlockR[NVAR][VECBUFF];
 #define REUSE alloc_if(0) free_if(0)
 #define FREE  alloc_if(0) free_if(1)
 #define RETAIN alloc_if(1) free_if(0)
+
 #ifdef DOPHI
 	//Decore variable as offload-able
 	#define MICTYPE __declspec(target(mic))

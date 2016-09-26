@@ -11,9 +11,10 @@ void Flux_PCM(BlockCC W,BlockIC Fx,BlockIC Fy,BlockIC Fz,Block_S Block,Model_S M
 	ISALIGNED(Fy);
 	ISALIGNED(Fz);
 
-	WipeBlockIC(Fx,Block);
-	WipeBlockIC(Fy,Block);
-	WipeBlockIC(Fz,Block);
+	// WipeBlockIC(Fx,Block);
+	// WipeBlockIC(Fy,Block);
+	// WipeBlockIC(Fz,Block);
+
     LRs2Flux(W,W,Fx,DIR_X,Block);
     LRs2Flux(W,W,Fy,DIR_Y,Block);
     LRs2Flux(W,W,Fz,DIR_Z,Block);
@@ -58,6 +59,7 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 	WipeBlockIC(Flx,Grid);
 	//Asymmetric bounds b/c of flux centering
  	#pragma omp parallel for collapse(3) \
+ 		num_threads(TpSB) \
  		default(shared) private(i,iLim,iG,iblk,LeftW,RightW,FluxLR)
 	for (k=Grid.ksd+1;k<=Grid.ked;k++) {
 		for (j=Grid.jsd+1;j<=Grid.jed;j++) {

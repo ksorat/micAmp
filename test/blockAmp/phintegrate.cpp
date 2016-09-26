@@ -31,6 +31,7 @@ void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block
 	dtox = dt/Grid.dx; dtoy = dt/Grid.dy; dtoz = dt/Grid.dz;
 
  	#pragma omp parallel for collapse(2) \
+ 		num_threads(TpSB) \
  		default(shared) private(rho,E,Mx,My,Mz,P,dFx,dFy,dFz)
 	for (k=Grid.ksd;k<=Grid.ked;k++) {
 		for (j=Grid.jsd;j<=Grid.jed;j++) {
