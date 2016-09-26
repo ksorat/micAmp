@@ -164,7 +164,7 @@ typedef Real BlockR[NVAR][VECBUFF];
 #define FREE  alloc_if(0) free_if(1)
 #define RETAIN alloc_if(1) free_if(0)
 #define TPC 3 //Threads/core on device (1-4)
-#define SBPDEV 4 //Sub-blocks per device
+#define SBPDEV 1 //Sub-blocks per device
 
 #ifdef DOPHI
 	//Decore variable as offload-able

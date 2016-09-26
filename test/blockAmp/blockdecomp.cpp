@@ -56,8 +56,7 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 				#endif
 				{
 					//Advance sub-block
-					printf("myBlock->ied = %d\n",myBlock->ied);
-					//AdvanceFluid(Qblk,*myBlock,Model,Grid.dt);
+					AdvanceFluid(Qblk,*myBlock,Model,Grid.dt);
 				}
 				//Copy advanced sub-block back into advState holder
 				//Avoid ghosts
