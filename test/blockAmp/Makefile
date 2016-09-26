@@ -32,7 +32,7 @@ ifeq "$(ARCH)" "MAC"
 endif
 ifeq "$(ARCH)" "PHI"
 	#CCFLAGS = -O3 -openmp -g -heap-arrays -opt-report-phase=offload -D DOPHI
-	CCFLAGS = -O3 -openmp -g -opt-report-phase=offload -D DOPHI
+	CCFLAGS = -O3 -opt-report3 -openmp -g -opt-report-phase=offload -D DOPHI
 	CCFLAGS += -DTPC=$(TPC) -DSBPDEV=$(SBPDEV)
 endif
 

@@ -60,7 +60,7 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 	//Asymmetric bounds b/c of flux centering
  	#pragma omp parallel for collapse(3) \
  		num_threads(TpSB) \
- 		default(shared) private(i,iLim,iG,iblk,LeftW,RightW,FluxLR)
+ 		default(shared) private(i,j,k,iLim,iG,iblk,LeftW,RightW,FluxLR)
 	for (k=Grid.ksd+1;k<=Grid.ked;k++) {
 		for (j=Grid.jsd+1;j<=Grid.jed;j++) {
 			for (iblk=Grid.isd+1;iblk<=Grid.ied;iblk+=VECBUFF) {
