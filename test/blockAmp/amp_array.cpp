@@ -118,7 +118,7 @@ void PrintBlockCC(BlockCC A, Block_S Block) {
 	for (n=0;n<NVAR;n++) {
 		for (k=Block.ksd;k<=Block.ked;k++) {
 			for (j=Block.jsd;j<=Block.jed;j++) {
-				printf("A[%d][%d][%d][i]\n", n,k,j);
+				printf("Q_CC[%d][%d][%d][i]\n", n,k,j);
 				for (i=Block.isd;i<=Block.ied;i++) {
 					printf("\t%f", A[n][k][j][i]);
 				}
@@ -128,3 +128,18 @@ void PrintBlockCC(BlockCC A, Block_S Block) {
 	} //Block loop
 }
 
+//Prints out block
+void PrintBlockIC(BlockIC A, Block_S Block) {
+	int n,i,j,k;
+	for (n=0;n<NVAR;n++) {
+		for (k=Block.ksd;k<=Block.ked+1;k++) {
+			for (j=Block.jsd;j<=Block.jed+1;j++) {
+				printf("Q_IC[%d][%d][%d][i]\n", n,k,j);
+				for (i=Block.isd;i<=Block.ied+1;i++) {
+					printf("\t%f", A[n][k][j][i]);
+				}
+				printf("\n");
+			}
+		}
+	} //Block loop
+}
