@@ -51,7 +51,7 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 
 				#ifdef DOPHI
 				#pragma offload target(mic:devID) \
-					inout(Qblk), in(myBlock,Model,Grid.dt)
+					inout(Qblk), in(myBlock : length(1),Model,Grid.dt)
 				#endif
 				{
 					//Advance sub-block
