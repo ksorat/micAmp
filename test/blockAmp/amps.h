@@ -21,9 +21,9 @@ typedef Real **** RealP4;
 //Define handles for Gas[NVAR][NZ][NY][NX]
 #define NVAR 5
 
-#define NXP 128
-#define NYP 64
-#define NZP 64
+// #define NXP 128
+// #define NYP 64
+// #define NZP 64
 #define NXP 32
 #define NYP 16
 #define NZP 16
@@ -41,9 +41,9 @@ typedef Real **** RealP4;
 
 //Block decomposition information
 //In reality, define N?PBLK @ compile-time, rest is derived at run-time
-#define BX (2)
-#define BY (4)
-#define BZ (4)
+// #define BX (2)
+// #define BY (4)
+// #define BZ (4)
 
 #define BX (1)
 #define BY (2)
