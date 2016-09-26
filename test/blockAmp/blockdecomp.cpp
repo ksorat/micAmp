@@ -3,39 +3,57 @@
 
 #include "amps.h"
 #include "prototypes.h"
+#include <omp.h>
 
+#ifdef DOPHI
+	#include <offload.h>
+#endif
+
+//Host variables to manage decomposition
 RealP4 advState;
+Block_S ***SubBlocks;
+
+//Host variables to hold device/decomp info
+int NumDevs; //Number of devices
+int TpC; //Threads per MIC core
+int SBpDev; //Sub-blocks per device
+
+int NumSBs; //Number of simultaneous sub-blocks
+int TpSB; //Number of threads per sub-block
 
 //Break up input 4D State into blocks and send each to advance routine
 void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 
 	RealP4 swpState;
 	BlockCC Qblk DECALIGN;
-	Block_S Block;
+	Block_S *myBlock;
 
 	int iblk,jblk,kblk;
-	
+	int tID,devID; //Thread id/offload device #
 
 	//printf("Inside block advance\n");
 	int Ng = Grid.Ng;
-	//printf("Breaking grid into %d (%d,%d,%d) blocks\n",BX*BY*BZ,NXPBLK,NYPBLK,NZPBLK);
 
 	//Loop over blocks
+	#pragma omp parallel for collapse(2) \
+		num_threads(NumSBs) default(shared) \
+		private(iblk,jblk,kblk,tID,Qblk,myBlock)
 	for (kblk=0;kblk<BZ;kblk++) {
 		for (jblk=0;jblk<BY;jblk++) {
 			for (iblk=0;iblk<BX;iblk++) {
 				
-				InitBlock(&Block,Grid,iblk,jblk,kblk);
-				
+				tID = omp_get_thread_num();
+				myBlock = &(SubBlocks[kblk][jblk][iblk]);
 				//Copy from State->Block
-				CopyinBlock(State,Qblk,Grid,Block);
+				CopyinBlock(State,Qblk,Grid,*myBlock);
 
 				//Advance sub-block
-				AdvanceFluid(Qblk,Block,Model,Grid.dt);
+				AdvanceFluid(Qblk,*myBlock,Model,Grid.dt);
 
 				//Copy advanced sub-block back into advState holder
 				//Avoid ghosts
-				CopyoutBlock(advState,Qblk,Grid,Block);
+				CopyoutBlock(advState,Qblk,Grid,*myBlock);
+				
 			}
 		}
 	} //Loop over blocks
@@ -49,15 +67,49 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 //Can eventually make this a function pointer
 void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 
+	printf("Initializing Integrator ...\n");
 	//Holds advancing state
 	advState = Create4Array(Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
 
+	//Note, BZ-BX can be variables, they don't need to be compile-time defined
+	SubBlocks = MapBlocks(Grid,BX,BY,BZ);
+	omp_set_nested(1); //Allow nested
+	omp_set_max_active_levels(3); //Limit to 2-deep
+
+#ifdef DOPHI
+	NumDevs = _Offload_number_of_devices();
+	//These are defs now, but will be changed to variables
+	TpC = TPC;
+	SBpDev = SBPDEV;
+	NumSBs = NumDevs*SBpDev;
+
+	TpSB = (CPMIC/SBpDev)*TpC; //Threads per sub-block
+	printf("\tFound %d devices\n", NumDevs);
+	printf("\tRunning %d Threads/Core and %d Sub-blocks/Device\n", TpC, SBpDev);
+	printf("\tRunning %d Threads/Device\n",TpC*CPMIC);
+#else
+	NumDevs = 0;
+	TpC = 0;
+	SBpDev = 0;
+	NumSBs = 2;
+	TpSB = 4;
+	printf("\tNo devices found, running on host\n");
+	
+#endif
+	printf("\n");
+	printf("\tSimultaneous # of blocks = %d\n",NumSBs);
+	printf("\tNumber of Threads/Sub-Block = %d\n",TpSB);
 }
 
 //Clean up after yourself
 void DestroyIntegrator(Grid_S Grid, Model_S Model) {
 
 	Kill4Array(advState);
+
+	//Kill SubBlocks array
+	delete[] SubBlocks[0][0];
+	delete[] SubBlocks[0];
+	delete[] SubBlocks;
 }
 
 
@@ -108,7 +160,36 @@ void CopyoutBlock(RealP4 Q, BlockCC Qblk, Grid_S Grid, Block_S Block) {
 
 }
 
+//Creates 3D block array and initializes it
+//Note reverse order, Map[k][j][i]
+Block_S*** MapBlocks(Grid_S Grid, int Bx, int By, int Bz) {
+	int i,j,k;
+	int ind1,ind2;
 
+	printf("\tBreaking grid into %d [%d x %d x %d] blocks of size (%d,%d,%d)\n",Bx*By*Bz,Bx,By,Bz,NXPBLK,NYPBLK,NZPBLK);
+
+	Block_S*** Map3D = new Block_S** [Bz];
+	Map3D[0]         = new Block_S*  [Bz*By];
+	Map3D[0][0]      = new Block_S   [BZ*BY*BX];
+
+	for (k=0;k<Bz;k++) {
+		ind1 = k*By;
+		Map3D[k] = &Map3D[0][ind1];
+		for (j=0;j<By;j++) {
+			ind2 = k*(By*Bx) + j*Bx;
+			Map3D[k][j] = &Map3D[0][0][ind2];
+		}
+	}
+
+	for (k=0;k<Bz;k++) {
+		for (j=0;j<By;j++) {
+			for (i=0;i<Bx;i++) {
+				InitBlock( &(Map3D[k][j][i]), Grid, i,j,k);
+			}
+		}
+	}
+	return Map3D;
+}
 //Initializes Block data structure for a given block index
 void InitBlock(Block_S *Block, Grid_S Grid, int iBlk, int jBlk, int kBlk) {
 

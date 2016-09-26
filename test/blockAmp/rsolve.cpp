@@ -33,6 +33,7 @@ void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR) {
 	
 	//Calculate wave speeds/scale factor
 	//#pragma omp simd private(cfl,cfr,al,ar)
+	#pragma omp simd private(cfl,cfr,al,ar)
 	for (i=0;i<VECBUFF;i++) {
 		cfl = sqrt( Gam*LeftW [PRESSURE][i]/LeftW [DEN][i] );
 		cfr = sqrt( Gam*RightW[PRESSURE][i]/RightW[DEN][i] );

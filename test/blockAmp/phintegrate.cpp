@@ -30,11 +30,11 @@ void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block
 	//Use dt from argument instead of Grid for multi-step methods
 	dtox = dt/Grid.dx; dtoy = dt/Grid.dy; dtoz = dt/Grid.dz;
 
- 	//#pragma omp parallel for collapse(2) \
- 		//default(shared) private(rho,E,Mx,My,Mz,P,dFx,dFy,dFz)
+ 	#pragma omp parallel for collapse(2) \
+ 		default(shared) private(rho,E,Mx,My,Mz,P,dFx,dFy,dFz)
 	for (k=Grid.ksd;k<=Grid.ked;k++) {
 		for (j=Grid.jsd;j<=Grid.jed;j++) {
-			//#pragma omp simd
+			#pragma omp simd
 			for (i=Grid.isd;i<=Grid.ied;i++) {
 				//In - Out, downward located fluxes
 

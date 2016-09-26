@@ -11,9 +11,9 @@ void Flux_PCM(BlockCC W,BlockIC Fx,BlockIC Fy,BlockIC Fz,Block_S Block,Model_S M
 	ISALIGNED(Fy);
 	ISALIGNED(Fz);
 
-	WipeBlockIC(Fx,Block);
-	WipeBlockIC(Fy,Block);
-	WipeBlockIC(Fz,Block);
+	// WipeBlockIC(Fx,Block);
+	// WipeBlockIC(Fy,Block);
+	// WipeBlockIC(Fz,Block);
     LRs2Flux(W,W,Fx,DIR_X,Block);
     LRs2Flux(W,W,Fy,DIR_Y,Block);
     LRs2Flux(W,W,Fz,DIR_Z,Block);
@@ -57,8 +57,8 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 	//Wipe flux array
 	WipeBlockIC(Flx,Grid);
 	//Asymmetric bounds b/c of flux centering
- 	//#pragma omp parallel for collapse(3) \
- 		//default(shared) private(i,iLim,iG,iblk,LeftW,RightW,FluxLR)
+ 	#pragma omp parallel for collapse(3) \
+ 		default(shared) private(i,iLim,iG,iblk,LeftW,RightW,FluxLR)
 	for (k=Grid.ksd+1;k<=Grid.ked;k++) {
 		for (j=Grid.jsd+1;j<=Grid.jed;j++) {
 			for (iblk=Grid.isd+1;iblk<=Grid.ied;iblk+=VECBUFF) {
@@ -71,7 +71,7 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 				//Loads data into aligned LR buffer, hands off to vector Riemann solver
 				//LR buffer is interface LR not cell LR
 				//"Twist" coordinate triad so that x is in direction of interface normal
-				//#pragma omp simd 
+				#pragma omp simd 
 				for (i=0;i<iLim;i++) {
 					iG = iblk+i;
 					LeftW [DEN][i]      = rW[DEN][k-dk][j-dj][iG-di];
@@ -94,7 +94,7 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 				//Unpack into fluxes
 				//Untwist back to original coordinate system
 				//Untwist, Vn<->Vx etc
-				//#pragma omp simd 
+				#pragma omp simd 
 				for (i=0;i<iLim;i++) {
 					iG = iblk+i;
 					Flx[DEN][k][j][iG] = FluxLR[DEN][i];

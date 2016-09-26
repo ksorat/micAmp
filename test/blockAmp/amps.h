@@ -153,8 +153,6 @@ extern Model_S Model;
 
 #define NDIM 3
 
-//Decore variable as offload-able
-#define MICTYPE __declspec(target(mic))
 //Declare local array as aligned
 #define DECALIGN __attribute__((aligned(ALIGN)))
 //Direct compiler to assume alignment for passed array
@@ -165,5 +163,17 @@ extern Model_S Model;
 #define REUSE alloc_if(0) free_if(0)
 #define FREE  alloc_if(0) free_if(1)
 #define RETAIN alloc_if(1) free_if(0)
+#define TPC 3 //Threads/core on device (1-4)
+#define SBPDEV 4 //Sub-blocks per device
+
+#ifdef DOPHI
+	//Decore variable as offload-able
+	#define MICTYPE __declspec(target(mic))
+	#define CPMIC 60
+#else
+	//Define MICTYPE to empty string
+	#define MICTYPE
+#endif
+
 
 #endif //AMPS_H
