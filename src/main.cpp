@@ -11,7 +11,9 @@ int main(int argc, char *argv[]) {
 
 	
 	Grid_S Grid;
-	Real ****State;
+	RealP4 State;
+
+
 	//Setup
 	// - Fill in Model data structure
 	// - Fill in Grid data structure
@@ -29,17 +31,17 @@ int main(int argc, char *argv[]) {
 
 	//Calculate initial timestep
 	Grid.dt = CalcDT(State,Grid,Model);
-
+	
 	//Do initial outputs
 	if ( (Grid.Ts) % Model.TsOut == 0 ) {
 		toConsole(State,Grid,Model);
 		toVTK(State,Grid,Model); 
 	}	
-
+	
 	while (Grid.t < Grid.Tfin) {
 		//Evolve system
-		AdvanceFluid(State, Grid, Model, Grid.dt);
-
+		BlockAdvance(State,Grid,Model,Grid.dt);
+		
 		//Enforce BCs
 		EnforceBCs(State, Grid, Model);
 

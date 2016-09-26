@@ -78,3 +78,78 @@ void Copy4Array(RealP4 A, RealP4 B, int N1, int N2, int N3, int N4) {
 		}
 	}
 }
+
+
+//Zeros out block
+void WipeBlockCC(BlockCC A, Block_S Block) {
+	int n,i,j,k;
+	#pragma omp parallel for collapse(3) num_threads(TpSB)
+	for (n=0;n<NVAR;n++) {
+		for (k=Block.ksd;k<=Block.ked;k++) {
+			for (j=Block.jsd;j<=Block.jed;j++) {
+				#pragma omp simd
+				for (i=Block.isd;i<=Block.ied;i++) {
+					A[n][k][j][i] = 0.0;
+				}
+			}
+		}
+	} //Block loop
+}
+
+//Zeros out block
+void WipeBlockIC(BlockIC A, Block_S Block) {
+	int n,i,j,k;
+	#pragma omp parallel for collapse(3) num_threads(TpSB)
+	for (n=0;n<NVAR;n++) {
+		for (k=Block.ksd;k<=Block.ked+1;k++) {
+			for (j=Block.jsd;j<=Block.jed+1;j++) {
+				#pragma omp simd
+				for (i=Block.isd;i<=Block.ied+1;i++) {
+					A[n][k][j][i] = 0.0;
+				}
+			}
+		}
+	} //Block loop
+}
+
+//Prints out block
+void PrintBlockCC(BlockCC A, Block_S Block) {
+	int n,i,j,k;
+	for (n=0;n<NVAR;n++) {
+		for (k=Block.ksd;k<=Block.ked;k++) {
+			for (j=Block.jsd;j<=Block.jed;j++) {
+				printf("Q_CC[%d][%d][%d][i]\n", n,k,j);
+				for (i=Block.isd;i<=Block.ied;i++) {
+					printf("\t%f", A[n][k][j][i]);
+				}
+				printf("\n");
+			}
+		}
+	} //Block loop
+}
+
+void PrintBlockIC(BlockIC A, Block_S Block) {
+	int n,i,j,k;
+	for (n=0;n<NVAR;n++) {
+		for (k=Block.ksd;k<=Block.ked+1;k++) {
+			for (j=Block.jsd;j<=Block.jed+1;j++) {
+				printf("Q_IC[%d][%d][%d][i]\n", n,k,j);
+				for (i=Block.isd;i<=Block.ied+1;i++) {
+					printf("\t%f", A[n][k][j][i]);
+				}
+				printf("\n");
+			}
+		}
+	} //Block loop
+}
+
+void PrintBlockR(BlockR A) {
+	int n,i;
+	for (n=0;n<NVAR;n++) {
+		printf("NV = %d / ",n);
+		for (i=0;i<VECBUFF;i++) {
+			printf("%f ",A[n][i]);
+		}
+		printf("\n");
+	}
+}

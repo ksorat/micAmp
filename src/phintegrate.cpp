@@ -4,51 +4,40 @@
 #include "amps.h"
 #include "prototypes.h"
 
-//Globals internal to integrator
-//Should be allocated on the phi
-
-RealP4 Wmid, lW,rW; //Half timestep, CELL L/R
-RealP4 Flux_x, Flux_y, Flux_z;
-
 //MUSCL update
-void AdvanceFluid(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
+void AdvanceFluid(BlockCC State, Block_S Block, Model_S Model, Real dt) {
+	BlockIC Flux_x, Flux_y, Flux_z DECALIGN;
 
-	//Update State->Wmid (0.5*dt) using PCM LR states
+	printf("dt = %f\n",dt);
+	//Get PCM fluxes
+	DEBUG_MSG("Calculating fluxes\n");
 
-	//Get PCM-fluxes
+	Flux_PCM(State,Flux_x,Flux_y,Flux_z,Block,Model);
+
+	DEBUG_MSG("Applying fluxes\n");
+	FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block,Model);
 	
-	Flux_PCM(State, Flux_x, Flux_y, Flux_z, Grid, Model);
-	Copy4Array(Wmid,State,Grid.N[0],Grid.N[1],Grid.N[2],Grid.N[3]);
-	FluxUpdate(Wmid, Flux_x, Flux_y, Flux_z, 0.5*dt, Grid);
-
-	//Get PLM-fluxes
-	Flux_PLM(Wmid, Flux_x, Flux_y, Flux_z, Grid, Model);
-	//Finish update, State->State (dt)
-	FluxUpdate(State, Flux_x, Flux_y, Flux_z, dt, Grid);
-
-#ifdef VISCOSITY
-	//Apply viscosity in an operator-split manner for now
+	DEBUG_MSG("Fluid advance complete\n");
 	
-	Flux_Viscous(State, Flux_x, Flux_y, Flux_z, Grid, Model);
-	FluxUpdate(State, Flux_x, Flux_y, Flux_z, dt, Grid);	
-#endif
+}	
 
-}
-void FluxUpdate(RealP4 Prim, RealP4 Fx, RealP4 Fy, RealP4 Fz, Real dt, Grid_S Grid) {
-	__assume_aligned(Prim, ALIGN);
-	__assume_aligned(Fx, ALIGN);
-	__assume_aligned(Fy, ALIGN);
-	__assume_aligned(Fz, ALIGN);
+void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block_S Grid, Model_S Model) {
+	ISALIGNED(Prim);
+	ISALIGNED(Fx);
+	ISALIGNED(Fy);
+	ISALIGNED(Fz);
 
 	int i,j,k,n;
 	Real dFx, dFy, dFz, dtox, dtoy, dtoz;
 	Real rho, E, Mx,My,Mz, P;
 
 	const Real Gam = Model.Gam;
+
 	//Use dt from argument instead of Grid for multi-step methods
 	dtox = dt/Grid.dx; dtoy = dt/Grid.dy; dtoz = dt/Grid.dz;
 
  	#pragma omp parallel for collapse(2) \
+ 		num_threads(TpSB) \
  		default(shared) private(rho,E,Mx,My,Mz,P,dFx,dFy,dFz)
 	for (k=Grid.ksd;k<=Grid.ked;k++) {
 		for (j=Grid.jsd;j<=Grid.jed;j++) {
@@ -101,34 +90,5 @@ void FluxUpdate(RealP4 Prim, RealP4 Fx, RealP4 Fy, RealP4 Fz, Real dt, Grid_S Gr
 
 }
 
-
-//Initialize big data storage objects for fluxes/delta-state etc
-//Can eventually make this a function pointer
-void InitializeIntegrator(Grid_S Grid, Model_S Model) {
-
-	//Wmid is the half timestep update to the input state
-	Wmid = Create4Array(Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
-
-	//Create holders for directed states
-	lW = Create4Array(Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
-	rW = Create4Array(Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);
-
-	Flux_x = Create4Array(Grid.Nv,Grid.Nz+1,Grid.Ny+1,Grid.Nx+1);
-	Flux_y = Create4Array(Grid.Nv,Grid.Nz+1,Grid.Ny+1,Grid.Nx+1);
-	Flux_z = Create4Array(Grid.Nv,Grid.Nz+1,Grid.Ny+1,Grid.Nx+1);
-
-}
-//Clean up after yourself
-void DestroyIntegrator(Grid_S Grid, Model_S Model) {
-
-	Kill4Array(Wmid);
-	Kill4Array(lW);
-	Kill4Array(rW);
-
-	Kill4Array(Flux_x);
-	Kill4Array(Flux_y);
-	Kill4Array(Flux_z);
-
-}
 
 

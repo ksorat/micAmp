@@ -4,153 +4,113 @@
 #include "amps.h"
 #include "prototypes.h"
 
-//Standard flux functions
-//Input: LeftW[NVAR][VECBUFF], RightW[][] the Left/Right *INTERFACE* states
-//Output: Flux @ the interface
-//General HLL-style flux calculation
-//Calculate Roe LR states/eigenvalues
-//Calculate wave-speeds, use these to calculate weights/scales
-//Use outer-most speeds of fan & LR states to get L-R fluxes (two sets of fluxes based on lW/rW)
-//Use scaling numbers to combine Fl & Fr => FluxLR
+//Given input state W (prim), calculates fluxes based on PCM LR reconstruction
+void Flux_PCM(BlockCC W,BlockIC Fx,BlockIC Fy,BlockIC Fz,Block_S Block,Model_S Model) {
+	ISALIGNED(W);
+	ISALIGNED(Fx);
+	ISALIGNED(Fy);
+	ISALIGNED(Fz);
 
-//Takes LR states (VECBUFF of them) and returns Riemann fluxes
-void RiemannFluxHLLE(Real LeftW[NVAR][VECBUFF], Real RightW[NVAR][VECBUFF], Real FluxLR[NVAR][VECBUFF]) {
-	__assume_aligned(LeftW, ALIGN);
-	__assume_aligned(RightW, ALIGN);
-	__assume_aligned(FluxLR, ALIGN);
-
-	int i;
-	Real Gam;
-	Real cfl, cfr, ar, al;
-	Real Scl[VECBUFF], bp[VECBUFF], bm[VECBUFF] __attribute__((aligned(ALIGN)));
-	Real RoeLR[NVAR][VECBUFF], evals[NVAR][VECBUFF], Fl[NVAR][VECBUFF], Fr[NVAR][VECBUFF] __attribute__((aligned(ALIGN)));
-
-	Gam = Model.Gam;
-	//Calculate Roe averages & eigenvalues
-	Roes_Vec(LeftW,RightW,RoeLR,evals);
+	// WipeBlockIC(Fx,Block);
+	// WipeBlockIC(Fy,Block);
+	// WipeBlockIC(Fz,Block);
 	
+    LRs2Flux(W,W,Fx,DIR_X,Block,Model);
+    LRs2Flux(W,W,Fy,DIR_Y,Block,Model);
+    LRs2Flux(W,W,Fz,DIR_Z,Block,Model);
 	
-	//Calculate wave speeds/scale factor
-	#pragma omp simd private(cfl,cfr,al,ar)
-	for (i=0;i<VECBUFF;i++) {
-		cfl = sqrt( Gam*LeftW [PRESSURE][i]/LeftW [DEN][i] );
-		cfr = sqrt( Gam*RightW[PRESSURE][i]/RightW[DEN][i] );
-
-		al = fmin( evals[0]     [i], LeftW [VELX][i] - cfl );
-		ar = fmax( evals[NVAR-1][i], RightW[VELX][i] + cfr );
-
-		bp[i] = fmax(ar,0.0);
-		bm[i] = fmin(al,0.0);
-		Scl[i] = 0.5*(bp[i] + bm[i])/(bp[i] - bm[i]);
-	}
-
-	CalcLR_Fluxes(LeftW,RightW,Fl,Fr,bm,bp);
-
-	//Use scale factor to combine L-R fluxes into interface flux
-	//Assuming NVAR ordering: DEN/Vel-xyz/TotalE
-	#pragma omp simd
-	for (i=0;i<VECBUFF;i++) {
-		FluxLR[0][i] = 0.5*( Fl[0][i] + Fr[0][i] ) + Scl[i]*( Fl[0][i] - Fr[0][i] );
-		FluxLR[1][i] = 0.5*( Fl[1][i] + Fr[1][i] ) + Scl[i]*( Fl[1][i] - Fr[1][i] );
-		FluxLR[2][i] = 0.5*( Fl[2][i] + Fr[2][i] ) + Scl[i]*( Fl[2][i] - Fr[2][i] );
-		FluxLR[3][i] = 0.5*( Fl[3][i] + Fr[3][i] ) + Scl[i]*( Fl[3][i] - Fr[3][i] );
-		FluxLR[4][i] = 0.5*( Fl[4][i] + Fr[4][i] ) + Scl[i]*( Fl[4][i] - Fr[4][i] );
-	}
-
-}
-//Calculates Roe averages and eigenvalues for a vector length
-void Roes_Vec(Real LeftW[NVAR][VECBUFF],Real RightW[NVAR][VECBUFF],Real RoeLR[NVAR][VECBUFF],Real evals[NVAR][VECBUFF]) {
-	__assume_aligned(LeftW, ALIGN);
-	__assume_aligned(RightW, ALIGN);
-	__assume_aligned(RoeLR, ALIGN);
-	__assume_aligned(evals, ALIGN);
-
-	int i;
-	Real invD,hL,hR, vsq, asq, a;
-	const Real Gam = Model.Gam;
-
-	#pragma omp simd private(invD,hL,hR,vsq,asq,a)
-	for (i=0;i<VECBUFF;i++) {
-		RoeLR[DEN][i] = sqrt( LeftW[DEN][i]*RightW[DEN][i] );
-		invD = 1.0/( sqrt(LeftW[DEN][i]) + sqrt(RightW[DEN][i]) );
-
-		RoeLR[VELX][i] = invD*( sqrt(LeftW[DEN][i])*LeftW[VELX][i] + sqrt(RightW[DEN][i])*RightW[VELX][i] );
-		RoeLR[VELY][i] = invD*( sqrt(LeftW[DEN][i])*LeftW[VELY][i] + sqrt(RightW[DEN][i])*RightW[VELY][i] );
-		RoeLR[VELZ][i] = invD*( sqrt(LeftW[DEN][i])*LeftW[VELZ][i] + sqrt(RightW[DEN][i])*RightW[VELZ][i] );
-
-		//Calculate L/R enthalpy
-		hL = inlineEnthalpy(LeftW [DEN][i], LeftW [VELX][i], LeftW [VELY][i], LeftW [VELZ][i], LeftW [PRESSURE][i], Gam);
-		hR = inlineEnthalpy(RightW[DEN][i], RightW[VELX][i], RightW[VELY][i], RightW[VELZ][i], RightW[PRESSURE][i], Gam);
-
-		//Enthalpy really
-		RoeLR[PRESSURE][i] = invD*( sqrt(LeftW[DEN][i])*hL + sqrt(RightW[DEN][i])*hR );
-
-		//Calculate eigenvalues
-		vsq = SQR(RoeLR[VELX][i]) + SQR(RoeLR[VELY][i]) + SQR(RoeLR[VELZ][i]);
-		asq = (Gam-1)*fmax(RoeLR[PRESSURE][i] - 0.5*vsq, TINY);
-		a = sqrt(asq);
-		evals[0][i] = RoeLR[VELX][i] - a;
-		evals[1][i] = RoeLR[VELX][i];
-		evals[2][i] = RoeLR[VELX][i];
-		evals[3][i] = RoeLR[VELX][i];
-		evals[4][i] = RoeLR[VELX][i] + a;
-	}
 }
 
-//Use outer-most wave speeds of fan to calculate fluxes of lW/rW (outer states)
-//Will later use weights to turn these fluxes into the fluxes in the intermediate regions of the fan
-void CalcLR_Fluxes(Real LeftW[NVAR][VECBUFF],Real RightW[NVAR][VECBUFF], Real Fl[NVAR][VECBUFF], Real Fr[NVAR][VECBUFF], Real bm[VECBUFF], Real bp[VECBUFF] ) {
-	__assume_aligned(LeftW, ALIGN);
-	__assume_aligned(RightW, ALIGN);
-	__assume_aligned(Fl, ALIGN);
-	__assume_aligned(Fr, ALIGN);
+//Takes *CELL* L/R values and a direction, returns flux
+void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid, Model_S Model) {
+	ISALIGNED(lW);
+	ISALIGNED(rW);
+	ISALIGNED(Flx);
 
-	Real vL,vR, El, Er;
-	int i;
-	const Real Gam = Model.Gam;
+	int i,j,k,n,iG,iLim;
+	int di,dj,dk;
+	int Vn, Vt1, Vt2;
+
+
+	int iblk;
+	Real Gam = Model.Gam;
 	
+	//These hold *INTERFACE* L/R values
+	BlockR LeftW, RightW, FluxLR DECALIGN;
 
-	#pragma omp simd private(vL,vR,El,Er)
-	for (i=0;i<VECBUFF;i++) {
-		vL = LeftW [VELX][i] - bm[i];
-		vR = RightW[VELX][i] - bp[i];
+	switch(d) {
+		//Setup offsets for directionality
+		//Setup rotated triad for twist/untwist
+		case DIR_X :
+			//X-Dir
+			di = 1; dj = 0; dk = 0;
+			Vn = VELX; Vt1 = VELY; Vt2 = VELZ; 
+			break;
+		case DIR_Y :
+			//Y-Dir
+			di = 0; dj = 1; dk = 0;
+			Vn = VELY; Vt1 = VELZ; Vt2 = VELX;	
+			break;
+		case DIR_Z :
+			//Z-Dir
+			di = 0; dj = 0; dk = 1;
+			Vn = VELZ; Vt1 = VELX; Vt2 = VELY;
+			break;		
+	}
+	//Wipe flux array
+	WipeBlockIC(Flx,Grid);
+	//Asymmetric bounds b/c of flux centering
+ 	#pragma omp parallel for collapse(2) \
+ 		num_threads(TpSB) \
+ 		default(shared) private(i,j,k,iLim,iG,iblk,LeftW,RightW,FluxLR)
+	for (k=Grid.ksd+1;k<=Grid.ked;k++) {
+		for (j=Grid.jsd+1;j<=Grid.jed;j++) {
+			for (iblk=Grid.isd+1;iblk<=Grid.ied;iblk+=VECBUFF) {
+				//Inner vector loops
 
-		//Mass flux (Mx-bm*d)
-		Fl[DEN][i] = LeftW [DEN][i]*vL;
-		Fr[DEN][i] = RightW[DEN][i]*vR;
+				//Limit inner loops in case of bad divisibility
+				//Last i-bound is ied
+				iLim = IMIN(VECBUFF,Grid.ied-iblk+1);
 
-		//Mx flux ( Mx*(Vx-bm) )
-		Fl[MOMX][i] = LeftW [DEN][i]*LeftW [VELX][i]*vL;
-		Fr[MOMX][i] = RightW[DEN][i]*RightW[VELX][i]*vR;
+				//Loads data into aligned LR buffer, hands off to vector Riemann solver
+				//LR buffer is interface LR not cell LR
+				//"Twist" coordinate triad so that x is in direction of interface normal
+				#pragma omp simd 
+				for (i=0;i<iLim;i++) {
+					iG = iblk+i;
+					LeftW [DEN][i]      = rW[DEN][k-dk][j-dj][iG-di];
+					RightW[DEN][i]      = lW[DEN][k][j][iG];
+					//Twist, Vx<->Vnormal / Vy,Vz=Vt1,Vt2
+					LeftW [VELX][i]     = rW[Vn][k-dk][j-dj][iG-di];
+					RightW[VELX][i]     = lW[Vn][k][j][iG];
+					LeftW [VELY][i]     = rW[Vt1][k-dk][j-dj][iG-di];
+					RightW[VELY][i]     = lW[Vt1][k][j][iG];
+					LeftW [VELZ][i]     = rW[Vt2][k-dk][j-dj][iG-di];
+					RightW[VELZ][i]     = lW[Vt2][k][j][iG];
+					
+					LeftW [PRESSURE][i] = rW[PRESSURE][k-dk][j-dj][iG-di];
+					RightW[PRESSURE][i] = lW[PRESSURE][k][j][iG];
 
-		//My flux
-		Fl[MOMY][i] = LeftW [DEN][i]*LeftW [VELY][i]*vL;
-		Fr[MOMY][i] = RightW[DEN][i]*RightW[VELY][i]*vR;
+				}
 
-		//Mz flux
-		Fl[MOMZ][i] = LeftW [DEN][i]*LeftW [VELZ][i]*vL;
-		Fr[MOMZ][i] = RightW[DEN][i]*RightW[VELZ][i]*vR;
+				//Call Riemann solver
+				RiemannFluxHLLE(LeftW,RightW,FluxLR,Gam);
 
-		//Add pressure correction in x (normal to interface) direction
-		Fl[MOMX][i] = Fl[MOMX][i] + LeftW[PRESSURE][i];
-		Fr[MOMX][i] = Fr[MOMX][i] + RightW[PRESSURE][i];
+				//Unpack into fluxes
+				//Untwist back to original coordinate system
+				//Untwist, Vn<->Vx etc
+				#pragma omp simd 
+				for (i=0;i<iLim;i++) {
+					iG = iblk+i;
+					Flx[DEN][k][j][iG]      = FluxLR[DEN][i];
+					Flx[Vn][k][j][iG]       = FluxLR[VELX][i];
+					Flx[Vt1][k][j][iG]      = FluxLR[VELY][i];
+					Flx[Vt2][k][j][iG]      = FluxLR[VELZ][i];
+					Flx[PRESSURE][k][j][iG] = FluxLR[PRESSURE][i];
+				}	
 
-		//Energy flux [ E*(Vx-bm) + P*Vx ]
-		El = ( LeftW [PRESSURE][i]/(Gam-1) )+ 0.5*LeftW [DEN][i]*( SQR(LeftW [VELX][i]) + SQR(LeftW [VELY][i]) + SQR(LeftW [VELZ][i]) );
-		Er = ( RightW[PRESSURE][i]/(Gam-1) )+ 0.5*RightW[DEN][i]*( SQR(RightW[VELX][i]) + SQR(RightW[VELY][i]) + SQR(RightW[VELZ][i]) );
-
-		Fl[TOTE][i] = El*vL + LeftW [PRESSURE][i]*LeftW [VELX][i];
-		Fr[TOTE][i] = Er*vR + RightW[PRESSURE][i]*RightW[VELX][i];
-
-	}	
-}
-
-inline Real inlineEnthalpy(Real d, Real Vx, Real Vy, Real Vz, Real P,Real Gam) {
-	Real K, e, H;
-
-	e = P/(Gam-1);
-	K = 0.5*d*( SQR(Vx) + SQR(Vy) + SQR(Vz) );
-	H = (P + e + K)/d;
-	return H;
+			}
+		}
+	}
 
 }
