@@ -1,11 +1,18 @@
-ARCH = MAC
-#MODE = PHI
+HOST=$(shell hostname)
 
-#MODE = DEBUG
-#MODE = PRODUCTION
 
+ARCH = EMPTY
 EXE = bin/amp.x
 CC = icc
+
+ifneq (, $(findstring soratka1,$(HOST)))
+
+	ARCH = MAC
+endif
+
+ifneq (, $(findstring smic,$(HOST)))
+	ARCH = PHI
+endif
 
 ifeq "$(ARCH)" "MAC"
 	CCFLAGS = -O3 -qopenmp -g -Wl,-stack_size,0x40000000,-stack_addr,0xf0000000
@@ -26,7 +33,7 @@ SOURCE = $(wildcard *.cpp)
 OBJS = $(SOURCE:.cpp=.o)
 
 all:	$(EXE)
-	@echo Compiling
+	@echo "Compiled for $(ARCH) on $(HOST)"
 
 $(EXE): $(OBJS)
 	$(CC) $(CCFLAGS) $(INCLUDES) -o $(EXE) $(OBJS) $(LFLAGS) $(LIBS)
