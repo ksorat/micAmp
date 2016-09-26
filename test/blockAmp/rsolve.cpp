@@ -44,6 +44,7 @@ void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR) {
 		bp[i] = fmax(ar,0.0);
 		bm[i] = fmin(al,0.0);
 		Scl[i] = 0.5*(bp[i] + bm[i])/(bp[i] - bm[i]);
+		printf("bp/bm/Scl = ", bp[i],bm[i],Scl[i]);
 	}
 
 	CalcLR_Fluxes(LeftW,RightW,Fl,Fr,bm,bp);
