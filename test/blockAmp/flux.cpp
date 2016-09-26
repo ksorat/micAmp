@@ -15,6 +15,7 @@ void Flux_PCM(BlockCC W,BlockIC Fx,BlockIC Fy,BlockIC Fz,Block_S Block,Model_S M
 	// WipeBlockIC(Fy,Block);
 	// WipeBlockIC(Fz,Block);
 
+	printf("Flux Gam = %f\n",Model.Gam);
     LRs2Flux(W,W,Fx,DIR_X,Block);
     //LRs2Flux(W,W,Fy,DIR_Y,Block);
     //LRs2Flux(W,W,Fz,DIR_Z,Block);
