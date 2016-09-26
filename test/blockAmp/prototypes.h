@@ -46,12 +46,12 @@ Block_S*** MapBlocks(Grid_S Grid, int Bx, int By, int Bz);
 
 //File: flux.cpp
 MICTYPE void Flux_PCM(BlockCC State,BlockIC Flux_x,BlockIC Flux_y,BlockIC Flux_z,Block_S Block,Model_S Model);
-MICTYPE void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid);
+MICTYPE void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid,Model_S Model);
 
 //File: rsolve.cpp
-MICTYPE void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR);
-MICTYPE void Roes_Vec(BlockR LeftW,BlockR RightW,BlockR RoeLR,BlockR evals);
+MICTYPE void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR,Real Gam);
+MICTYPE void Roes_Vec(BlockR LeftW,BlockR RightW,BlockR RoeLR,BlockR evals,Real Gam);
 MICTYPE inline Real inlineEnthalpy(Real d, Real Vx, Real Vy, Real Vz, Real P,Real Gam);
-MICTYPE void CalcLR_Fluxes(BlockR LeftW, BlockR RightW, BlockR Fl, BlockR Fr, Real bm[VECBUFF], Real bp[VECBUFF] );
+MICTYPE void CalcLR_Fluxes(BlockR LeftW, BlockR RightW, BlockR Fl, BlockR Fr, Real bm[VECBUFF], Real bp[VECBUFF], Real Gam );
 
 #endif //PROTOTYPES_H

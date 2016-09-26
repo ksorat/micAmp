@@ -15,15 +15,15 @@ void Flux_PCM(BlockCC W,BlockIC Fx,BlockIC Fy,BlockIC Fz,Block_S Block,Model_S M
 	// WipeBlockIC(Fy,Block);
 	// WipeBlockIC(Fz,Block);
 
-	printf("Flux Gam = %f\n",Model.Gam);
-    LRs2Flux(W,W,Fx,DIR_X,Block);
-    //LRs2Flux(W,W,Fy,DIR_Y,Block);
-    //LRs2Flux(W,W,Fz,DIR_Z,Block);
+	
+    LRs2Flux(W,W,Fx,DIR_X,Block,Model);
+    //LRs2Flux(W,W,Fy,DIR_Y,Block,Model);
+    //LRs2Flux(W,W,Fz,DIR_Z,Block,Model);
 	
 }
 
 //Takes *CELL* L/R values and a direction, returns flux
-void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
+void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid, Model_S Model) {
 	ISALIGNED(lW);
 	ISALIGNED(rW);
 	ISALIGNED(Flx);
@@ -34,6 +34,8 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 
 
 	int iblk;
+	Real Gam = Model.Gam;
+	printf("Flux Gam = %f\n",Gam);
 	//These hold *INTERFACE* L/R values
 	BlockR LeftW, RightW, FluxLR DECALIGN;
 
@@ -93,7 +95,7 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 				}
 
 				//Call Riemann solver
-				RiemannFluxHLLE(LeftW,RightW,FluxLR);
+				RiemannFluxHLLE(LeftW,RightW,FluxLR,Gam);
 				//PrintBlockR(FluxLR);
 
 				//Unpack into fluxes

@@ -14,27 +14,25 @@
 //Use scaling numbers to combine Fl & Fr => FluxLR
 
 //Takes LR states (VECBUFF of them) and returns Riemann fluxes
-void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR) {
+void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR,Real Gam) {
 	ISALIGNED(LeftW);
 	ISALIGNED(RightW);
 	ISALIGNED(FluxLR);
 
 	int i;
-	Real Gam;
+	
 	Real cfl, cfr, ar, al;
 	Real Scl[VECBUFF], bp[VECBUFF], bm[VECBUFF] DECALIGN;
 	BlockR RoeLR, evals, Fl, Fr DECALIGN;
 
-	Gam = Model.Gam;
-	Gam = 5/3.0;
 	//Calculate Roe averages & eigenvalues
-	Roes_Vec(LeftW,RightW,RoeLR,evals);
+	Roes_Vec(LeftW,RightW,RoeLR,evals,Gam);
 	
 	
 	//Calculate wave speeds/scale factor
 	//#pragma omp simd private(cfl,cfr,al,ar)
 	//#pragma omp simd
-	printf("Gam = %f\n",Gam);
+	//printf("Gam = %f\n",Gam);
 
 	for (i=0;i<VECBUFF;i++) {
 		cfl = sqrt( Gam*LeftW [PRESSURE][i]/LeftW [DEN][i] );
@@ -46,10 +44,10 @@ void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR) {
 		bp[i] = fmax(ar,0.0);
 		bm[i] = fmin(al,0.0);
 		Scl[i] = 0.5*(bp[i] + bm[i])/(bp[i] - bm[i]);
-		printf("bp/bm/Scl = %f %f %f\n", bp[i],bm[i],Scl[i]);
+		//printf("bp/bm/Scl = %f %f %f\n", bp[i],bm[i],Scl[i]);
 	}
 
-	CalcLR_Fluxes(LeftW,RightW,Fl,Fr,bm,bp);
+	CalcLR_Fluxes(LeftW,RightW,Fl,Fr,bm,bp,Gam);
 
 	//Use scale factor to combine L-R fluxes into interface flux
 	//Assuming NVAR ordering: DEN/Vel-xyz/TotalE
@@ -64,7 +62,7 @@ void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR) {
 
 }
 
-void Roes_Vec(BlockR LeftW,BlockR RightW,BlockR RoeLR,BlockR evals) {
+void Roes_Vec(BlockR LeftW,BlockR RightW,BlockR RoeLR,BlockR evals,Real Gam) {
 	ISALIGNED(LeftW );
 	ISALIGNED(RightW);
 	ISALIGNED(RoeLR );
@@ -72,7 +70,6 @@ void Roes_Vec(BlockR LeftW,BlockR RightW,BlockR RoeLR,BlockR evals) {
 
 	int i;
 	Real invD,hL,hR, vsq, asq, a;
-	const Real Gam = Model.Gam;
 
 	//#pragma omp simd private(invD,hL,hR,vsq,asq,a)
 	//#pragma omp simd
@@ -105,7 +102,7 @@ void Roes_Vec(BlockR LeftW,BlockR RightW,BlockR RoeLR,BlockR evals) {
 
 //Use outer-most wave speeds of fan to calculate fluxes of lW/rW (outer states)
 //Will later use weights to turn these fluxes into the fluxes in the intermediate regions of the fan
-void CalcLR_Fluxes(BlockR LeftW, BlockR RightW, BlockR Fl, BlockR Fr, Real bm[VECBUFF], Real bp[VECBUFF] ) {
+void CalcLR_Fluxes(BlockR LeftW, BlockR RightW, BlockR Fl, BlockR Fr, Real bm[VECBUFF], Real bp[VECBUFF], Real Gam ) {
 	ISALIGNED(LeftW );
 	ISALIGNED(RightW);
 	ISALIGNED(Fl    );
@@ -113,8 +110,8 @@ void CalcLR_Fluxes(BlockR LeftW, BlockR RightW, BlockR Fl, BlockR Fr, Real bm[VE
 
 	Real vL,vR, El, Er;
 	int i;
-	Real Gam = Model.Gam;
-	Gam = 5/3.0;
+	
+	
 
 	//#pragma omp simd private(vL,vR,El,Er)
 	//#pragma omp simd
