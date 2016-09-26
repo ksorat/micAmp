@@ -90,8 +90,16 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 					RightW[PRESSURE][i] = lW[PRESSURE][k][j][iG];
 
 				}
+				for (i=0;i<iLim;i++) {
+					printf("i (%d): Left/Right = %f / %f\n",i,LeftW[0,i],RightW[0,i]);
+				}	
+
 				//Call Riemann solver
 				RiemannFluxHLLE(LeftW,RightW,FluxLR);
+
+				for (i=0;i<iLim;i++) {
+					printf("i (%d): FluxLR = %f / %f\n",i,FluxLR[0,i]);
+				}	
 
 				//Unpack into fluxes
 				//Untwist back to original coordinate system
@@ -104,9 +112,6 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 					Flx[Vt1][k][j][iG] = FluxLR[VELY][i];
 					Flx[Vt2][k][j][iG] = FluxLR[VELZ][i];
 					Flx[PRESSURE][k][j][iG] = FluxLR[PRESSURE][i];
-				}	
-				for (i=0;i<iLim;i++) {
-					printf("Flx[%d] = %f\n",i,Flx[i]);
 				}	
 
 			}
