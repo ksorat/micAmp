@@ -13,7 +13,6 @@ void AdvanceFluid(BlockCC State, Block_S Block, Model_S Model, Real dt) {
 	DEBUG_MSG("Calculating fluxes\n");
 
 	Flux_PCM(State,Flux_x,Flux_y,Flux_z,Block,Model);
-	//PrintBlockIC(Flux_x,Block);
 
 	DEBUG_MSG("Applying fluxes\n");
 	FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block,Model);
