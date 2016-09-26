@@ -46,14 +46,15 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 				devID = (NumDevs>0) ? (tID % NumDevs) : 0;
 				printf("tID/devID = %d %d\n", tID,devID);
 				myBlock = &(SubBlocks[kblk][jblk][iblk]);
+
 				//Copy from State->Block
 				CopyinBlock(State,Qblk,Grid,*myBlock);
 
-				#ifdef DOPHI
+				/*#ifdef DOPHI
 				#pragma offload target(mic:devID) \
 					inout(Qblk), in(myBlock : length(1)) \
 					in(Model,Grid.dt)
-				#endif
+				#endif*/
 				{
 					//Advance sub-block
 					//AdvanceFluid(Qblk,*myBlock,Model,Grid.dt);
