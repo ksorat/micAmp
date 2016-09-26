@@ -5,35 +5,42 @@
 */
 
 
-//Define precision
+//Define overall precision
 typedef double Real;
 typedef Real **** RealP4;
+//--------------------------------------------------------------
 
+//Space and time domain information
+#define XMIN -1.0
+#define XMAX 1.0
+#define TFIN 10.0
+#define TSOUT 1
+//--------------------------------------------------------------
 
-//#define VISCOSITY
-//#define DEBUG
-#define SHEARVISC 0.05
-#define VISCSIG 0.8 //Safety factor for viscous timestep
-
-#define PI 3.14159
+//Various defined parameters
 //Define handles for Gas[NVAR][NZ][NY][NX]
 #define NVAR 5
+#define NXP 128
+#define NYP 64
+#define NZP 64
+
 #define NUMGHOST 4
 #define VECBUFF 16 //Buffer size for vector functions (MUSCL)
 #define ALIGN 64
 #define TINY 1.0e-6
 
-//For now, simply define resolution/domain
-#define NXP 128
-#define NYP 64
-#define NZP 64
+#define SHEARVISC 0.05
+#define VISCSIG 0.8 //Safety factor for viscous timestep
+#define PI 3.14159
+
+//Derived grid parameters
 #define NX (NXP+2*NUMGHOST)
 #define NY (NYP+2*NUMGHOST)
 #define NZ (NZP+2*NUMGHOST)
+//--------------------------------------------------------------
 
 //Block decomposition information
 //In reality, define N?PBLK @ compile-time, rest is derived at run-time
-
 #define BX (2)
 #define BY (4)
 #define BZ (4)
@@ -45,13 +52,10 @@ typedef Real **** RealP4;
 #define NYBLK (NYPBLK+2*NUMGHOST)
 #define NZBLK (NZPBLK+2*NUMGHOST)
 
-//Space and time domain information
-#define XMIN -1.0
-#define XMAX 1.0
-#define TFIN 10.0
-#define TSOUT 1
 
+//--------------------------------------------------------------
 
+//Various structs/types
 typedef struct {
 
 	int Nx,  Ny,  Nz, Ng, Nv;
@@ -125,11 +129,13 @@ typedef struct {
 //Cell-centered and interface-centered state blocks
 typedef Real BlockCC[NVAR][NZBLK][NYBLK][NXBLK];
 typedef Real BlockIC[NVAR][NZBLK+1][NYBLK+1][NXBLK+1];
+
 //Block type for Riemann solver
 typedef Real BlockR[NVAR][VECBUFF];
 
+//--------------------------------------------------------------
 
-
+//Simplifying DEFs
 #define SQR(x) ((x)*(x))
 #define IMIN(a,b) ((a) < (b) ? a : b)
 
@@ -152,20 +158,14 @@ typedef Real BlockR[NVAR][VECBUFF];
 #define DIR_Z 2
 
 #define NDIM 3
+//--------------------------------------------------------------
 
-//Declare local array as aligned
-#define DECALIGN __attribute__((aligned(ALIGN)))
-//Direct compiler to assume alignment for passed array
-#define ISALIGNED(x) __assume_aligned(x, ALIGN)
 
 //Various defs for Intel Phi
 #define ALLOC alloc_if(1) free_if(0)
 #define REUSE alloc_if(0) free_if(0)
 #define FREE  alloc_if(0) free_if(1)
 #define RETAIN alloc_if(1) free_if(0)
-#define TPC 3 //Threads/core on device (1-4)
-#define SBPDEV 1 //Sub-blocks per device
-
 #ifdef DOPHI
 	//Decore variable as offload-able
 	#define MICTYPE __declspec(target(mic))
@@ -174,6 +174,19 @@ typedef Real BlockR[NVAR][VECBUFF];
 	//Define MICTYPE to empty string
 	#define MICTYPE
 #endif
+//Declare local array as aligned
+#define DECALIGN __attribute__((aligned(ALIGN)))
+//Direct compiler to assume alignment for passed array
+#define ISALIGNED(x) __assume_aligned(x, ALIGN)
+//--------------------------------------------------------------
 
-extern MICTYPE Model_S Model;
+//Global variables
+extern MICTYPE Model_S Model; //Model info
+//Number of devices, Threads per MIC core, Sub-blocks per device
+//Number of simultaneous sub-blocks, Number of threads per sub-block
+extern MICTYPE int NumDevs, TpC, SBpDev, NumSBs, TpSB;
+
+
+//--------------------------------------------------------------
+
 #endif //AMPS_H

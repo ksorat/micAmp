@@ -13,7 +13,6 @@
 RealP4 advState;
 Block_S ***SubBlocks;
 
-//Host variables to hold device/decomp info
 int NumDevs; //Number of devices
 int TpC; //Threads per MIC core
 int SBpDev; //Sub-blocks per device
@@ -102,8 +101,8 @@ void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 	NumDevs = 0;
 	TpC = 0;
 	SBpDev = 0;
-	NumSBs = 2;
-	TpSB = 4;
+	NumSBs = NUMSBS;
+	TpSB = TPSB;
 	printf("\tNo devices found, running on host\n");
 	
 #endif
