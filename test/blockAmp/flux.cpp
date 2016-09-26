@@ -98,7 +98,7 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 				//Unpack into fluxes
 				//Untwist back to original coordinate system
 				//Untwist, Vn<->Vx etc
-				#pragma omp simd 
+				//#pragma omp simd 
 				for (i=0;i<iLim;i++) {
 					iG = iblk+i;
 					Flx[DEN][k][j][iG]      = FluxLR[DEN][i];
