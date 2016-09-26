@@ -26,7 +26,7 @@ void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR) {
 	BlockR RoeLR, evals, Fl, Fr DECALIGN;
 
 	Gam = Model.Gam;
-
+	Gam = 5/3.0;
 	//Calculate Roe averages & eigenvalues
 	Roes_Vec(LeftW,RightW,RoeLR,evals);
 	
@@ -112,8 +112,8 @@ void CalcLR_Fluxes(BlockR LeftW, BlockR RightW, BlockR Fl, BlockR Fr, Real bm[VE
 
 	Real vL,vR, El, Er;
 	int i;
-	const Real Gam = Model.Gam;
-	
+	Real Gam = Model.Gam;
+	Gam = 5/3.0;
 
 	//#pragma omp simd private(vL,vR,El,Er)
 	//#pragma omp simd
