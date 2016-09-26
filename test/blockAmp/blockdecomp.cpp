@@ -35,9 +35,9 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 	int Ng = Grid.Ng;
 
 	//Loop over blocks
-	/*#pragma omp parallel for collapse(3) \
+	#pragma omp parallel for collapse(3) \
 		num_threads(NumSBs) default(shared) \
-		private(iblk,jblk,kblk,tID,devID,Qblk,myBlock)*/
+		private(iblk,jblk,kblk,tID,devID,Qblk,myBlock)
 	for (kblk=0;kblk<BZ;kblk++) {
 		for (jblk=0;jblk<BY;jblk++) {
 			for (iblk=0;iblk<BX;iblk++) {
