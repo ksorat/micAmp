@@ -43,6 +43,7 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 			for (iblk=0;iblk<BX;iblk++) {
 				
 				tID = omp_get_thread_num();
+				printf("tID = %d\n", tID);
 				devID = (NumDevs>0) ? (tID % NumDevs) : 0;
 
 				myBlock = &(SubBlocks[kblk][jblk][iblk]);
