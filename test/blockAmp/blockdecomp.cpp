@@ -40,6 +40,8 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 	for (kblk=0;kblk<BZ;kblk++) {
 		for (jblk=0;jblk<BY;jblk++) {
 			for (iblk=0;iblk<BX;iblk++) {
+				#pragma omp critical
+				{
 				
 				tID = omp_get_thread_num();
 				devID = (NumDevs>0) ? (tID % NumDevs) : 0;
@@ -63,10 +65,11 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 				//Copy advanced sub-block back into advState holder
 				//Avoid ghosts
 				CopyoutBlock(advState,Qblk,Grid,*myBlock);
-				
+				}//Critical
 			}
 		}
 	} //Loop over blocks
+	
 	//printf("Finished block update, x-fer back\n");
 	//Now swap advState and State pointers so that State is updated
 	Copy4Array(State,advState,Grid.Nv,Grid.Nz,Grid.Ny,Grid.Nx);

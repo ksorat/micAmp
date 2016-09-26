@@ -31,7 +31,8 @@ ifeq "$(ARCH)" "MAC"
 	CCFLAGS += -DNUMSBS=$(NUMSBS) -DTPSB=$(TPSB)
 endif
 ifeq "$(ARCH)" "PHI"
-	CCFLAGS = -O3 -openmp -g -heap-arrays -opt-report-phase=offload -D DOPHI
+	#CCFLAGS = -O3 -openmp -g -heap-arrays -opt-report-phase=offload -D DOPHI
+	CCFLAGS = -O3 -openmp -g -opt-report-phase=offload -D DOPHI
 	CCFLAGS += -DTPC=$(TPC) -DSBPDEV=$(SBPDEV)
 endif
 #-Wl,-stack_size,0x10000000 /256MB
