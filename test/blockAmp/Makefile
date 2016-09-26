@@ -19,7 +19,7 @@ ifeq "$(ARCH)" "MAC"
 
 endif
 ifeq "$(ARCH)" "PHI"
-	CCFLAGS = -O3 -qopenmp -g -D DOPHI
+	CCFLAGS = -O3 -openmp -g -D DOPHI
 
 endif
 #-Wl,-stack_size,0x10000000 /256MB
