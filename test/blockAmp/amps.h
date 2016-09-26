@@ -128,7 +128,7 @@ typedef Real BlockIC[NVAR][NZBLK+1][NYBLK+1][NXBLK+1];
 //Block type for Riemann solver
 typedef Real BlockR[NVAR][VECBUFF];
 
-extern Model_S Model;
+
 
 #define SQR(x) ((x)*(x))
 #define IMIN(a,b) ((a) < (b) ? a : b)
@@ -175,5 +175,5 @@ extern Model_S Model;
 	#define MICTYPE
 #endif
 
-
+extern MICTYPE Model_S Model;
 #endif //AMPS_H
