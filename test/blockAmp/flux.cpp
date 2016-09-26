@@ -17,8 +17,8 @@ void Flux_PCM(BlockCC W,BlockIC Fx,BlockIC Fy,BlockIC Fz,Block_S Block,Model_S M
 
 	
     LRs2Flux(W,W,Fx,DIR_X,Block,Model);
-    //LRs2Flux(W,W,Fy,DIR_Y,Block,Model);
-    //LRs2Flux(W,W,Fz,DIR_Z,Block,Model);
+    LRs2Flux(W,W,Fy,DIR_Y,Block,Model);
+    LRs2Flux(W,W,Fz,DIR_Z,Block,Model);
 	
 }
 
@@ -35,7 +35,7 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid, Model_S 
 
 	int iblk;
 	Real Gam = Model.Gam;
-	printf("Flux Gam = %f\n",Gam);
+	
 	//These hold *INTERFACE* L/R values
 	BlockR LeftW, RightW, FluxLR DECALIGN;
 

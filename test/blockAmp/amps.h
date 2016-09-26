@@ -24,9 +24,9 @@ typedef Real **** RealP4;
 // #define NXP 128
 // #define NYP 64
 // #define NZP 64
-#define NXP 32
-#define NYP 64
-#define NZP 64
+#define NXP 64
+#define NYP 128
+#define NZP 128
 
 #define NUMGHOST 4
 #define VECBUFF 16 //Buffer size for vector functions (MUSCL)
@@ -45,9 +45,9 @@ typedef Real **** RealP4;
 // #define BY (4)
 // #define BZ (4)
 
-#define BX (1)
-#define BY (2)
-#define BZ (2)
+#define BX (2)
+#define BY (4)
+#define BZ (4)
 
 #define NXPBLK (NXP/BX)
 #define NYPBLK (NYP/BY)

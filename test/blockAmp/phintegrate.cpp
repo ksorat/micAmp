@@ -33,6 +33,8 @@ void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block
 	Real rho, E, Mx,My,Mz, P;
 
 	const Real Gam = Model.Gam;
+	printf("FU Gam = %f\n", Gam);
+
 	//Use dt from argument instead of Grid for multi-step methods
 	dtox = dt/Grid.dx; dtoy = dt/Grid.dy; dtoz = dt/Grid.dz;
 
