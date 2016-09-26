@@ -118,9 +118,11 @@ void PrintBlockCC(BlockCC A, Block_S Block) {
 	for (n=0;n<NVAR;n++) {
 		for (k=Block.ksd;k<=Block.ked;k++) {
 			for (j=Block.jsd;j<=Block.jed;j++) {
+				printf("A[%d][%d][%d][i]\n", n,k,j);
 				for (i=Block.isd;i<=Block.ied;i++) {
-					printf("A[%d][[%d][%d][%d] = %f\n", n,k,j,i,A[n][k][j][i]);
+					printf("\t%f", A[n][k][j][i]);
 				}
+				printf("\n");
 			}
 		}
 	} //Block loop
