@@ -22,7 +22,7 @@ void Copy4Array(RealP4 A, RealP4 B, int N1, int N2, int N3, int N4);
 MICTYPE void WipeBlockCC(BlockCC A, Block_S Block);
 MICTYPE void WipeBlockIC(BlockIC A, Block_S Block);
 MICTYPE void PrintBlockCC(BlockCC A, Block_S Block);
-MICTYPE void PrintBlockIC(BlockCC A, Block_S Block);
+MICTYPE void PrintBlockIC(BlockIC A, Block_S Block);
 
 //File: amp_output.cpp
 void toConsole(RealP4 State, Grid_S Grid, Model_S Model);
