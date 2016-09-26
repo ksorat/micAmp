@@ -58,6 +58,12 @@ void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR,Real Gam) {
 
 }
 
+void RiemannFluxHLLC(BlockR LeftW,BlockR RightW,BlockR FluxLR,Real Gam) {
+	ISALIGNED(LeftW);
+	ISALIGNED(RightW);
+	ISALIGNED(FluxLR);
+
+}
 void Roes_Vec(BlockR LeftW,BlockR RightW,BlockR RoeLR,BlockR evals,Real Gam) {
 	ISALIGNED(LeftW );
 	ISALIGNED(RightW);

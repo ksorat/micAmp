@@ -50,6 +50,7 @@ MICTYPE void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid,M
 
 //File: rsolve.cpp
 MICTYPE void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR,Real Gam);
+MICTYPE void RiemannFluxHLLC(BlockR LeftW,BlockR RightW,BlockR FluxLR,Real Gam);
 MICTYPE void Roes_Vec(BlockR LeftW,BlockR RightW,BlockR RoeLR,BlockR evals,Real Gam);
 MICTYPE inline Real inlineEnthalpy(Real d, Real Vx, Real Vy, Real Vz, Real P,Real Gam);
 MICTYPE void CalcLR_Fluxes(BlockR LeftW, BlockR RightW, BlockR Fl, BlockR Fr, Real bm[VECBUFF], Real bp[VECBUFF], Real Gam );
