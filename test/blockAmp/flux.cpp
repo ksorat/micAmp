@@ -98,7 +98,7 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 				RiemannFluxHLLE(LeftW,RightW,FluxLR);
 
 				for (i=0;i<iLim;i++) {
-					printf("i (%d): FluxLR = %f / %f\n",i,FluxLR[0,i]);
+					printf("i (%d): FluxLR = %f\n",i,FluxLR[0,i]);
 				}	
 
 				//Unpack into fluxes
