@@ -37,19 +37,25 @@ void BlockAdvance(RealP4 State, Grid_S Grid, Model_S Model, Real dt) {
 	//Loop over blocks
 	#pragma omp parallel for collapse(2) \
 		num_threads(NumSBs) default(shared) \
-		private(iblk,jblk,kblk,tID,Qblk,myBlock)
+		private(iblk,jblk,kblk,tID,devID,Qblk,myBlock)
 	for (kblk=0;kblk<BZ;kblk++) {
 		for (jblk=0;jblk<BY;jblk++) {
 			for (iblk=0;iblk<BX;iblk++) {
 				
 				tID = omp_get_thread_num();
+				devID = (NumDevs>0) ? (tID % NumDevs) : 0;
+
 				myBlock = &(SubBlocks[kblk][jblk][iblk]);
 				//Copy from State->Block
 				CopyinBlock(State,Qblk,Grid,*myBlock);
 
-				//Advance sub-block
-				AdvanceFluid(Qblk,*myBlock,Model,Grid.dt);
-
+				#ifdef DOPHI
+				
+				#endif
+				{
+					//Advance sub-block
+					AdvanceFluid(Qblk,*myBlock,Model,Grid.dt);
+				}
 				//Copy advanced sub-block back into advState holder
 				//Avoid ghosts
 				CopyoutBlock(advState,Qblk,Grid,*myBlock);
