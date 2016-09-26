@@ -14,7 +14,7 @@ TPSB = 4
 #Thread decomposition for Phi runs
 #Threads/core on device (1-4)
 #Sub-blocks per device
-TPC = 3 
+TPC = 2
 SBPDEV = 1
 
 
@@ -27,7 +27,7 @@ ifneq (, $(findstring smic,$(HOST)))
 endif
 
 ifeq "$(ARCH)" "MAC"
-	CCFLAGS = -O3 -qopt-report3 -qopenmp -g -Wl,-stack_size,0x40000000,-stack_addr,0xf0000000
+	CCFLAGS = -O3 -qopenmp -g -Wl,-stack_size,0x40000000,-stack_addr,0xf0000000
 	CCFLAGS += -DNUMSBS=$(NUMSBS) -DTPSB=$(TPSB)
 endif
 ifeq "$(ARCH)" "PHI"
