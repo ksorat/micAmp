@@ -101,11 +101,11 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid) {
 				#pragma omp simd 
 				for (i=0;i<iLim;i++) {
 					iG = iblk+i;
-					Flx[DEN][k][j][iG] = FluxLR[DEN][i];
-					Flx[Vn][k][j][iG] = FluxLR[VELX][i];
-					Flx[Vt1][k][j][iG] = FluxLR[VELY][i];
-					Flx[Vt2][k][j][iG] = FluxLR[VELZ][i];
-					Flx[PRESSURE][k][j][iG] = FluxLR[PRESSURE][i];
+					Flx[DEN][k][j][iG]      = 0.0*FluxLR[DEN][i];
+					Flx[Vn][k][j][iG]       = 0.0*FluxLR[VELX][i];
+					Flx[Vt1][k][j][iG]      = 0.0*FluxLR[VELY][i];
+					Flx[Vt2][k][j][iG]      = 0.0*FluxLR[VELZ][i];
+					Flx[PRESSURE][k][j][iG] = 0.0*FluxLR[PRESSURE][i];
 				}	
 
 			}
