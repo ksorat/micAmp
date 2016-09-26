@@ -32,7 +32,7 @@ void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR) {
 	
 	
 	//Calculate wave speeds/scale factor
-	#pragma omp simd private(cfl,cfr,al,ar)
+	//#pragma omp simd private(cfl,cfr,al,ar)
 	//#pragma omp simd
 	for (i=0;i<VECBUFF;i++) {
 		cfl = sqrt( Gam*LeftW [PRESSURE][i]/LeftW [DEN][i] );
@@ -50,7 +50,7 @@ void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR) {
 
 	//Use scale factor to combine L-R fluxes into interface flux
 	//Assuming NVAR ordering: DEN/Vel-xyz/TotalE
-	#pragma omp simd
+	//#pragma omp simd
 	for (i=0;i<VECBUFF;i++) {
 		FluxLR[0][i] = 0.5*( Fl[0][i] + Fr[0][i] ) + Scl[i]*( Fl[0][i] - Fr[0][i] );
 		FluxLR[1][i] = 0.5*( Fl[1][i] + Fr[1][i] ) + Scl[i]*( Fl[1][i] - Fr[1][i] );
@@ -71,7 +71,7 @@ void Roes_Vec(BlockR LeftW,BlockR RightW,BlockR RoeLR,BlockR evals) {
 	Real invD,hL,hR, vsq, asq, a;
 	const Real Gam = Model.Gam;
 
-	#pragma omp simd private(invD,hL,hR,vsq,asq,a)
+	//#pragma omp simd private(invD,hL,hR,vsq,asq,a)
 	//#pragma omp simd
 	for (i=0;i<VECBUFF;i++) {
 		RoeLR[DEN][i] = sqrt( LeftW[DEN][i]*RightW[DEN][i] );
@@ -113,7 +113,7 @@ void CalcLR_Fluxes(BlockR LeftW, BlockR RightW, BlockR Fl, BlockR Fr, Real bm[VE
 	const Real Gam = Model.Gam;
 	
 
-	#pragma omp simd private(vL,vR,El,Er)
+	//#pragma omp simd private(vL,vR,El,Er)
 	//#pragma omp simd
 	for (i=0;i<VECBUFF;i++) {
 		vL = LeftW [VELX][i] - bm[i];
