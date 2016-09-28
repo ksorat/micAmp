@@ -11,14 +11,62 @@ void Flux_PCM(BlockCC W,BlockIC Fx,BlockIC Fy,BlockIC Fz,Block_S Block,Model_S M
 	ISALIGNED(Fy);
 	ISALIGNED(Fz);
 
-	// WipeBlockIC(Fx,Block);
-	// WipeBlockIC(Fy,Block);
-	// WipeBlockIC(Fz,Block);
-	
     LRs2Flux(W,W,Fx,DIR_X,Block,Model);
     LRs2Flux(W,W,Fy,DIR_Y,Block,Model);
     LRs2Flux(W,W,Fz,DIR_Z,Block,Model);
 	
+}
+
+//Given input state W (prim), calculates fluxes based on PLM LR reconstruction
+//Using MC limiter
+void Flux_PLM(BlockCC W,BlockIC Fx,BlockIC Fy,BlockIC Fz,Block_S Block,Model_S Model) {
+	ISALIGNED(W);
+	ISALIGNED(Fx);
+	ISALIGNED(Fy);
+	ISALIGNED(Fz);
+
+	BlockCC lW, rW DECALIGN;
+
+	Real Wmp[2]; //Holds mW,pW (minus/positive interface values of cell)
+
+	int d,n,j,k,i;
+	int di,dj,dk;
+	for (d=0;d<NDIM;d++) {
+		di = (d == DIR_X) ? 1 : 0;
+		dj = (d == DIR_Y) ? 1 : 0;
+		dk = (d == DIR_Z) ? 1 : 0;
+
+		//Loop over grid
+		for (n=0;n<Block.Nv;n++) {
+			for (k=Block.ksd+1;k<=Block.ked-1;k++) {
+				for (j=Block.jsd+1;j<=Block.jed-1;j++) {
+					for (i=Block.isd+1;i<=Block.ied-1;i++) {
+
+						//Reconstruct profile to get *CELL* LR states
+						Recon_PLM(Wmp, W[n][k-dk][j-dj][i-di],W[n][k][j][i],W[n][k+dk][j+dj][i+di]);
+
+						lW[n][k][j][i] = Wmp[0];
+						rW[n][k][j][i] = Wmp[1];
+					}
+				}
+			}
+		} //n loop
+
+		//Done with *CELL* LR states, calculate fluxes
+		//Using switch for now, figure out better pointer method
+		switch(d) {
+			case DIR_X :
+				LRs2Flux(lW,rW,Fx,d,Block,Model);	
+				break;
+			case DIR_Y :
+				LRs2Flux(lW,rW,Fy,d,Block,Model);	
+				break;
+			case DIR_Z :
+				LRs2Flux(lW,rW,Fz,d,Block,Model);	
+				break;
+		}
+		
+	} //Direction loop
 }
 
 //Takes *CELL* L/R values and a direction, returns flux
@@ -95,6 +143,7 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid, Model_S 
 
 				//Call Riemann solver
 				RiemannFluxHLLE(LeftW,RightW,FluxLR,Gam);
+				//RiemannFluxHLLC(LeftW,RightW,FluxLR,Gam);
 
 				//Unpack into fluxes
 				//Untwist back to original coordinate system
@@ -113,4 +162,33 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid, Model_S 
 		}
 	}
 
+}
+
+inline void Recon_PLM(Real Wmp[2], Real Wl, Real Wc, Real Wr) {
+	Real DelWl, DelWc, DelWr, DelWm, sgn;
+
+	//Calculate different local slopes
+	DelWl = Wc-Wl;
+	DelWr = Wr-Wc;
+	DelWc = 0.5*( Wr-Wl );
+
+	//Limit slope
+	DelWm = SlopeLimit(DelWl,DelWr,DelWc);
+
+	//Calculate directed states using limited slope
+	Wmp[0] = Wc - 0.5*DelWm;
+	Wmp[1] = Wc + 0.5*DelWm;
+
+}
+
+inline Real SlopeLimit(Real dWl, Real dWr,Real dWc) {
+	Real dWm, sgn;
+
+	if (dWl*dWr <= 0) {
+		dWm = 0.0;
+	} else {
+		sgn = (dWl > 0) - (dWl < 0); //Cheap sgn function w/o branch
+		dWm = sgn*fmin( fabs(dWc),fmin(2.0*fabs(dWl),2.0*fabs(dWr)) );
+	}
+	return dWm;
 }

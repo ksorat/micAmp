@@ -7,18 +7,27 @@
 //MUSCL update
 void AdvanceFluid(BlockCC State, Block_S Block, Model_S Model, Real dt) {
 	BlockIC Flux_x, Flux_y, Flux_z DECALIGN;
+	BlockCC midState DECALIGN;
 
-	printf("dt = %f\n",dt);
-	//Get PCM fluxes
-	DEBUG_MSG("Calculating fluxes\n");
 
-	Flux_PCM(State,Flux_x,Flux_y,Flux_z,Block,Model);
+	// //Get PCM fluxes
+	// DEBUG_MSG("Calculating PCM fluxes\n");
+	// Flux_PCM(State,Flux_x,Flux_y,Flux_z,Block,Model);
 
-	DEBUG_MSG("Applying fluxes\n");
+	// //Use PCM fluxes to update to half-step
+	// DEBUG_MSG("Advancing to half timestep\n");
+	// FluxUpdate(midState,Flux_x,Flux_y,Flux_z,0.5*dt,Block,Model);
+
+	// //Use half-step to get PLM fluxes
+	// DEBUG_MSG("Calculating PLM fluxes\n");
+	// Flux_PLM(midState,Flux_x,Flux_y,Flux_z,Block,Model);
+
+	// //Use PLM fluxes to advance full timestep
+	// DEBUG_MSG("Advancing full timestep\n");
+	// FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block,Model);
+	
+	Flux_PLM(State,Flux_x,Flux_y,Flux_z,Block,Model);
 	FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block,Model);
-	
-	DEBUG_MSG("Fluid advance complete\n");
-	
 }	
 
 void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block_S Grid, Model_S Model) {

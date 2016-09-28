@@ -26,8 +26,7 @@ void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR,Real Gam) {
 	BlockR RoeLR, evals, Fl, Fr DECALIGN;
 
 	//Calculate Roe averages & eigenvalues
-	Roes_Vec(LeftW,RightW,RoeLR,evals,Gam);
-	
+	Roes(LeftW,RightW,RoeLR,evals,Gam);
 	
 	//Calculate wave speeds/scale factor
 	#pragma omp simd private(cfl,cfr,al,ar)
@@ -49,22 +48,94 @@ void RiemannFluxHLLE(BlockR LeftW,BlockR RightW,BlockR FluxLR,Real Gam) {
 	//Assuming NVAR ordering: DEN/Vel-xyz/TotalE
 	#pragma omp simd
 	for (i=0;i<VECBUFF;i++) {
-		FluxLR[0][i] = 0.5*( Fl[0][i] + Fr[0][i] ) + Scl[i]*( Fl[0][i] - Fr[0][i] );
-		FluxLR[1][i] = 0.5*( Fl[1][i] + Fr[1][i] ) + Scl[i]*( Fl[1][i] - Fr[1][i] );
-		FluxLR[2][i] = 0.5*( Fl[2][i] + Fr[2][i] ) + Scl[i]*( Fl[2][i] - Fr[2][i] );
-		FluxLR[3][i] = 0.5*( Fl[3][i] + Fr[3][i] ) + Scl[i]*( Fl[3][i] - Fr[3][i] );
-		FluxLR[4][i] = 0.5*( Fl[4][i] + Fr[4][i] ) + Scl[i]*( Fl[4][i] - Fr[4][i] );
+		FluxLR[DEN ][i] = 0.5*( Fl[DEN ][i] + Fr[DEN ][i] ) + Scl[i]*( Fl[DEN ][i] - Fr[DEN ][i] );
+		FluxLR[MOMX][i] = 0.5*( Fl[MOMX][i] + Fr[MOMX][i] ) + Scl[i]*( Fl[MOMX][i] - Fr[MOMX][i] );
+		FluxLR[MOMY][i] = 0.5*( Fl[MOMY][i] + Fr[MOMY][i] ) + Scl[i]*( Fl[MOMY][i] - Fr[MOMY][i] );
+		FluxLR[MOMZ][i] = 0.5*( Fl[MOMZ][i] + Fr[MOMZ][i] ) + Scl[i]*( Fl[MOMZ][i] - Fr[MOMZ][i] );
+		FluxLR[TOTE][i] = 0.5*( Fl[TOTE][i] + Fr[TOTE][i] ) + Scl[i]*( Fl[TOTE][i] - Fr[TOTE][i] );
 	}
 
 }
 
+//HLLC Riemann solver
 void RiemannFluxHLLC(BlockR LeftW,BlockR RightW,BlockR FluxLR,Real Gam) {
 	ISALIGNED(LeftW);
 	ISALIGNED(RightW);
 	ISALIGNED(FluxLR);
 
+	int i;
+
+	Real cfl, cfr, ar, al;
+	Real dvl, dvr, tl, tr, dl, dr;
+	Real bp[VECBUFF], bm[VECBUFF], am[VECBUFF], cp[VECBUFF] DECALIGN;
+	Real SclL[VECBUFF], SclR[VECBUFF], SclM[VECBUFF] DECALIGN;
+	BlockR RoeLR, evals, Fl, Fr DECALIGN;
+
+	//Calculate Roe averages & eigenvalues
+	Roes(LeftW,RightW,RoeLR,evals,Gam);
+
+	//Calculate wave speeds/scale factor
+	#pragma omp simd private(cfl,cfr,al,ar,dvl,dvr,tl,tr,dl,dr)
+	for (i=0;i<VECBUFF;i++) {
+		cfl = sqrt( Gam*LeftW [PRESSURE][i]/LeftW [DEN][i] );
+		cfr = sqrt( Gam*RightW[PRESSURE][i]/RightW[DEN][i] );
+
+		al = fmin( evals[0]     [i], LeftW [VELX][i] - cfl );
+		ar = fmax( evals[NVAR-1][i], RightW[VELX][i] + cfr );
+
+		//Force al/ar to be directional
+		bp[i] = fmax(ar,0.0);
+		bm[i] = fmin(al,0.0);
+
+		//Calculate extra wave speeds for middle region of fan
+		//Residual velocities
+		dvl = LeftW [VELX][i] - al;
+		dvr = RightW[VELX][i] - ar;
+
+		//Pressure in contact wave
+		tl = LeftW [PRESSURE][i] + LeftW [DEN][i]* LeftW [VELX][i]*dvl;
+		tr = RightW[PRESSURE][i] + RightW[DEN][i]* RightW[VELX][i]*dvr;
+
+		//rho*(v-a)
+		dl = LeftW [DEN][i]*dvl;
+		dr = -1.0*RightW[DEN][i]*dvr;
+
+		//Contact wave speed and pressure @ moving surface
+		am[i] = (tl-tr) / (dl + dr);
+		cp[i] = fmax( (dl*tr + dr*tl)/(dl+dr), 0.0 );
+
+		if ( am[i] >= 0) { //Right-moving contact
+			SclL[i] = am[i] / ( am[i] - bm[i] );
+			SclR[i] = 0.0;
+			SclM[i] = -bm[i]/( am[i] - bm[i] );
+		} else {
+			SclL[i] = 0.0;
+			SclR[i] = -am[i]/( bp[i] - am[i] );
+			SclM[i] = bp[i]/( bp[i] - am[i] );
+		}
+
+	}
+
+	CalcLR_Fluxes(LeftW,RightW,Fl,Fr,bm,bp,Gam);
+
+	//Use scale factor to combine L-R fluxes into interface flux
+	#pragma omp simd
+	for (i=0;i<VECBUFF;i++) {
+		FluxLR[DEN ][i] = SclL[i]*Fl[DEN ][i] + SclR[i]*Fr[DEN ][i];
+		FluxLR[MOMX][i] = SclL[i]*Fl[MOMX][i] + SclR[i]*Fr[MOMX][i];
+		FluxLR[MOMY][i] = SclL[i]*Fl[MOMY][i] + SclR[i]*Fr[MOMY][i];
+		FluxLR[MOMZ][i] = SclL[i]*Fl[MOMZ][i] + SclR[i]*Fr[MOMZ][i];
+		FluxLR[TOTE][i] = SclL[i]*Fl[TOTE][i] + SclR[i]*Fr[TOTE][i];
+
+		//Add fixes
+		//Correct Mx w/ contact pressure
+		FluxLR[MOMX][i] += SclM[i]*cp[i];
+		FluxLR[TOTE][i] += SclM[i]*cp[i]*am[i]; 
+
+	}
+
 }
-void Roes_Vec(BlockR LeftW,BlockR RightW,BlockR RoeLR,BlockR evals,Real Gam) {
+void Roes(BlockR LeftW,BlockR RightW,BlockR RoeLR,BlockR evals,Real Gam) {
 	ISALIGNED(LeftW );
 	ISALIGNED(RightW);
 	ISALIGNED(RoeLR );

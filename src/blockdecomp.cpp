@@ -90,6 +90,7 @@ void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 	omp_set_nested(0); //Allow nested
 	omp_set_max_active_levels(3); //Limit to 2-deep
 
+	printf("\n");
 #ifdef DOPHI
 	NumDevs = _Offload_number_of_devices();
 	//These are defs now, but will be changed to variables
@@ -110,7 +111,7 @@ void InitializeIntegrator(Grid_S Grid, Model_S Model) {
 	printf("\tNo devices found, running on host\n");
 	
 #endif
-	printf("\n");
+	
 	printf("\tSimultaneous # of blocks = %d\n",NumSBs);
 	printf("\tNumber of Threads/Sub-Block = %d\n",TpSB);
 }
@@ -180,7 +181,11 @@ Block_S*** MapBlocks(Grid_S Grid, int Bx, int By, int Bz) {
 	int i,j,k;
 	int ind1,ind2;
 
-	printf("\tBreaking grid into %d [%d x %d x %d] blocks of size (%d,%d,%d)\n",Bx*By*Bz,Bx,By,Bz,NXPBLK,NYPBLK,NZPBLK);
+	printf("\tGrid          : (%d,%d,%d) cells\n",Grid.Nxp,Grid.Nyp,Grid.Nzp);
+	printf("\tDecomposition : %d [%d x %d x %d] blocks\n",Bx*By*Bz,Bx,By,Bz);
+	printf("\tBlock Size    : (%d,%d,%d) cells\n",NXPBLK,NYPBLK,NZPBLK);
+
+	//printf("\tBreaking grid into %d [%d x %d x %d] blocks of size (%d,%d,%d)\n",Bx*By*Bz,Bx,By,Bz,NXPBLK,NYPBLK,NZPBLK);
 
 	Block_S*** Map3D = new Block_S** [Bz];
 	Map3D[0]         = new Block_S*  [Bz*By];
