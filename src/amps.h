@@ -37,6 +37,10 @@ typedef Real **** RealP4;
 #define VISCSIG 0.8 //Safety factor for viscous timestep
 #define PI 3.14159
 
+//Pressure and density floors
+#define PFLOOR 1.0e-3
+#define DFLOOR 1.0e-3
+
 //--------------------------------------------------------------
 
 //Block decomposition information
@@ -204,6 +208,8 @@ extern MICTYPE Model_S Model; //Model info
 //Number of simultaneous sub-blocks, Number of threads per sub-block
 extern MICTYPE int NumDevs, TpC, SBpDev, NumSBs, TpSB;
 
+//Diagnostics
+extern Real TotKinE, TotIntE, tTic,tToc,tElapsed;
 
 //--------------------------------------------------------------
 

@@ -9,25 +9,29 @@ void AdvanceFluid(BlockCC State, Block_S Block, Model_S Model, Real dt) {
 	BlockIC Flux_x, Flux_y, Flux_z DECALIGN;
 	BlockCC midState DECALIGN;
 
+	int nv,i,j,k;
 
-	// //Get PCM fluxes
-	// DEBUG_MSG("Calculating PCM fluxes\n");
-	// Flux_PCM(State,Flux_x,Flux_y,Flux_z,Block,Model);
+	//Get PCM fluxes
+	DEBUG_MSG("Calculating PCM fluxes\n");
+	Flux_PCM(State,Flux_x,Flux_y,Flux_z,Block,Model);
 
-	// //Use PCM fluxes to update to half-step
-	// DEBUG_MSG("Advancing to half timestep\n");
-	// FluxUpdate(midState,Flux_x,Flux_y,Flux_z,0.5*dt,Block,Model);
+	//Copy State->midState, use predictor fluxes to update to half timestate
+	CopyBlockCC(midState,State,Block);
 
-	// //Use half-step to get PLM fluxes
-	// DEBUG_MSG("Calculating PLM fluxes\n");
-	// Flux_PLM(midState,Flux_x,Flux_y,Flux_z,Block,Model);
+	//Use PCM fluxes to update to half-step
+	DEBUG_MSG("Advancing to half timestep\n");
+	FluxUpdate(midState,Flux_x,Flux_y,Flux_z,0.5*dt,Block,Model);
 
-	// //Use PLM fluxes to advance full timestep
-	// DEBUG_MSG("Advancing full timestep\n");
-	// FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block,Model);
-	
-	Flux_PLM(State,Flux_x,Flux_y,Flux_z,Block,Model);
+	//Use half-step to get PLM fluxes
+	DEBUG_MSG("Calculating PLM fluxes\n");
+	Flux_PLM(midState,Flux_x,Flux_y,Flux_z,Block,Model);
+
+	//Use PLM fluxes to advance full timestep
+	DEBUG_MSG("Advancing full timestep\n");
 	FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block,Model);
+	
+	//Flux_PLM(State,Flux_x,Flux_y,Flux_z,Block,Model);
+	//FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block,Model);
 }	
 
 void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block_S Grid, Model_S Model) {
@@ -55,10 +59,10 @@ void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block
 				//In - Out, downward located fluxes
 
 				//primitive -> conserved
-				rho = fmax(Prim[DEN][k][j][i],TINY);
+				rho = fmax(Prim[DEN][k][j][i],DFLOOR);
 
 				//E = P/(Gam-1) + KinE
-				E = ( fmax(Prim[PRESSURE][k][j][i],TINY) / (Gam-1) ) + 0.5*rho*( SQR(Prim[VELX][k][j][i]) + SQR(Prim[VELY][k][j][i]) + SQR(Prim[VELZ][k][j][i]) );
+				E = ( fmax(Prim[PRESSURE][k][j][i],PFLOOR) / (Gam-1) ) + 0.5*rho*( SQR(Prim[VELX][k][j][i]) + SQR(Prim[VELY][k][j][i]) + SQR(Prim[VELZ][k][j][i]) );
 				Mx = rho*Prim[VELX][k][j][i];
 				My = rho*Prim[VELY][k][j][i];
 				Mz = rho*Prim[VELZ][k][j][i];
@@ -85,13 +89,13 @@ void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block
 					+  dtoz*( Fz[TOTE][k][j][i] - Fz[TOTE][k+1][j][i] );
 
 				//Store back into prim
-				rho = fmax(rho,TINY);
+				rho = fmax(rho,DFLOOR);
 				Prim[DEN][k][j][i] = rho;
 				Prim[VELX][k][j][i] = Mx/rho;
 				Prim[VELY][k][j][i] = My/rho;
 				Prim[VELZ][k][j][i] = Mz/rho;
 				P = (Gam-1)*( E - 0.5*rho*( SQR(Prim[VELX][k][j][i]) + SQR(Prim[VELY][k][j][i]) + SQR(Prim[VELZ][k][j][i]) ) );
-				Prim[PRESSURE][k][j][i] =  fmax(P,TINY);
+				Prim[PRESSURE][k][j][i] =  fmax(P,PFLOOR);
 
 			}
 		}

@@ -79,7 +79,22 @@ void Copy4Array(RealP4 A, RealP4 B, int N1, int N2, int N3, int N4) {
 	}
 }
 
+void CopyBlockCC(BlockCC A, BlockCC B, Block_S Block) {
+	int n,i,j,k;
+	#pragma omp parallel for collapse(3) \
+	        num_threads(TpSB) private(n,i,j,k)
+	for (n=0;n<NVAR;n++) {
+		for (k=Block.ksd;k<=Block.ked;k++) {
+			for (j=Block.jsd;j<=Block.jed;j++) {
+				#pragma omp simd
+				for (i=Block.isd;i<=Block.ied;i++) {
+					A[n][k][j][i] = B[n][k][j][i];
+				}
+			}
+		}
+	} //Block loop
 
+}
 //Zeros out block
 void WipeBlockCC(BlockCC A, Block_S Block) {
 	int n,i,j,k;

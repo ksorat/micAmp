@@ -6,12 +6,43 @@
 #include "amps.h"
 #include "prototypes.h"
 
+#include <time.h>
+#include <sys/time.h>
+
+//Some trivial globals
+Real tElapsed = 0;
+Real tTic,tToc;
+Real TotKinE, TotIntE;
+
 void toConsole(RealP4 State, Grid_S Grid, Model_S Model) {
+	Real kzcs;
+
+	if (Grid.Ts > 0) {
+		kzcs = (1.0*Grid.Nxp*Grid.Nyp*Grid.Nzp*Grid.Ts/tElapsed)/1000.0;
+	} else { kzcs = 0.0; }
+	
 	printf("\n");
-	printf("Simulation: t=%4.4f -/- Ts = %d -/- dt = %4.4e\n", Grid.t,Grid.Ts,Grid.dt);
+	printf("-/- AMPs -/- \n");
+	printf("\tSimulation: t=%4.4f -/- Ts = %d -/- dt = %4.4e\n", Grid.t,Grid.Ts,Grid.dt);
+	printf("\tElapsed wall-clock (s) = %4.4f\n",tElapsed);
+	printf("\tCumulative kZC/s = %4.4f\n", kzcs);
 
 }
 
+void tic() {
+	struct timeval time;
+
+	gettimeofday(&time,NULL);
+	tTic = (double)time.tv_sec + (double)time.tv_usec * .000001;
+}
+
+void toc() {
+	struct timeval time;
+
+	gettimeofday(&time,NULL);
+	tToc = (double)time.tv_sec + (double)time.tv_usec * .000001;
+	tElapsed = tElapsed + (tToc-tTic);
+}
 void toVTK(RealP4 State, Grid_S Grid, Model_S Model) {
 
 
