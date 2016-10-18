@@ -30,8 +30,6 @@ void AdvanceFluid(BlockCC State, Block_S Block, Model_S Model, Real dt) {
 	DEBUG_MSG("Advancing full timestep\n");
 	FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block,Model);
 	
-	//Flux_PLM(State,Flux_x,Flux_y,Flux_z,Block,Model);
-	//FluxUpdate(State,Flux_x,Flux_y,Flux_z,dt,Block,Model);
 }	
 
 void FluxUpdate(BlockCC Prim, BlockIC Fx, BlockIC Fy, BlockIC Fz, Real dt, Block_S Grid, Model_S Model) {

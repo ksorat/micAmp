@@ -24,7 +24,7 @@ typedef Real **** RealP4;
 // #define NXP 128
 // #define NYP 64
 // #define NZP 64
-#define NXP 64
+#define NXP 128
 #define NYP 128
 #define NZP 128
 
