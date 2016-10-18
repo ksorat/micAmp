@@ -50,8 +50,8 @@ typedef Real **** RealP4;
 // #define BZ (4)
 
 #define BX (2)
-#define BY (4)
-#define BZ (4)
+#define BY (2)
+#define BZ (2)
 
 #define NXPBLK (NXP/BX)
 #define NYPBLK (NYP/BY)

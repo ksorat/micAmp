@@ -142,8 +142,8 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid, Model_S 
 				}
 
 				//Call Riemann solver
-				//RiemannFluxHLLE(LeftW,RightW,FluxLR,Gam);
-				RiemannFluxHLLC(LeftW,RightW,FluxLR,Gam);
+				RiemannFluxHLLE(LeftW,RightW,FluxLR,Gam);
+				//RiemannFluxHLLC(LeftW,RightW,FluxLR,Gam);
 
 				//Unpack into fluxes
 				//Untwist back to original coordinate system

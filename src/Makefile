@@ -15,7 +15,7 @@ TPSB = 4
 #Threads/core on device (1-4)
 #Sub-blocks per device
 TPC = 3
-SBPDEV = 8
+SBPDEV = 4
 
 ifneq (, $(findstring soratka1,$(HOST)))
 	ARCH = MAC
