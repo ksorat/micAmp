@@ -19,7 +19,6 @@ void toConsole(RealP4 State, Grid_S Grid, Model_S Model) {
 
 	if (Grid.Ts > 0) {
 		kzcs = (1.0*Grid.Nxp*Grid.Nyp*Grid.Nzp*Grid.Ts/tElapsed)/1000.0;
-		kzcs = (1.0*Grid.Nxp*Grid.Nyp*Grid.Nzp*1.0/tElapsed)/1000.0;
 	} else { kzcs = 0.0; }
 	
 	printf("\n");
@@ -43,8 +42,8 @@ void toc() {
 	gettimeofday(&time,NULL);
 	tToc = (double)time.tv_sec + (double)time.tv_usec * .000001;
 	tElapsed = tElapsed + (tToc-tTic);
-	tElapsed = (tToc-tTic);
 }
+
 void toVTK(RealP4 State, Grid_S Grid, Model_S Model) {
 
 
