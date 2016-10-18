@@ -39,11 +39,12 @@ int main(int argc, char *argv[]) {
 	}	
 	
 	while (Grid.t < Grid.Tfin) {
-		tic();
-
+	
 		//Evolve system
+		tic();
 		BlockAdvance(State,Grid,Model,Grid.dt);
-		
+		toc();
+
 		//Enforce BCs
 		EnforceBCs(State, Grid, Model);
 
@@ -53,8 +54,7 @@ int main(int argc, char *argv[]) {
 
 		//Calculate new timestep
 		Grid.dt = CalcDT(State,Grid,Model);
-		
-		toc();
+			
 		//Output if necessary
 		if ( (Grid.Ts) % Model.TsOut == 0 ) {
 			toConsole(State,Grid,Model);

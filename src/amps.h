@@ -24,9 +24,9 @@ typedef Real **** RealP4;
 // #define NXP 128
 // #define NYP 64
 // #define NZP 64
-#define NXP 128
-#define NYP 128
-#define NZP 128
+#define NXP 256
+#define NYP 256
+#define NZP 256
 
 #define NUMGHOST 4
 #define VECBUFF 16 //Buffer size for vector functions (MUSCL)
