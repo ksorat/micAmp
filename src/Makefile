@@ -25,6 +25,10 @@ ifneq (, $(findstring smic,$(HOST)))
 	ARCH = PHI
 endif
 
+ifneq (, $(findstring ys,$(HOST)))
+	ARCH = YELLOWSTONE
+endif
+
 ifeq "$(ARCH)" "MAC"
 	CCFLAGS = -O3 -qopenmp -g -Wl,-stack_size,0x40000000,-stack_addr,0xf0000000
 	CCFLAGS += -DNUMSBS=$(NUMSBS) -DTPSB=$(TPSB)
@@ -35,6 +39,12 @@ ifeq "$(ARCH)" "PHI"
 	CCFLAGS += -DTPC=$(TPC) -DSBPDEV=$(SBPDEV)
 endif
 
+ifeq "$(ARCH)" "YELLOWSTONE"
+	NUMSBS = 4
+	TPSB = 4
+	CCFLAGS = -O3 -qopenmp -Wl
+	CCFLAGS += -DNUMSBS=$(NUMSBS) -DTPSB=$(TPSB)
+endif
 #-Wl,-stack_size,0x10000000 /256MB
 #-Wl,-stack_size,0x40000000,-stack_addr,0xf0000000 /1GB
 #CCFLAGS = -debug all -traceback -g 
