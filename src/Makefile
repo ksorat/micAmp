@@ -42,7 +42,7 @@ endif
 ifeq "$(ARCH)" "YELLOWSTONE"
 	NUMSBS = 4
 	TPSB = 4
-	CCFLAGS = -O3 -qopenmp -Wl
+	CCFLAGS = -O3 -qopenmp 
 	CCFLAGS += -DNUMSBS=$(NUMSBS) -DTPSB=$(TPSB)
 endif
 #-Wl,-stack_size,0x10000000 /256MB
