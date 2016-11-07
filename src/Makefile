@@ -12,8 +12,8 @@ TPSB = 4
 #Thread decomposition for Phi runs
 #Threads/core on device (1-4)
 #Sub-blocks per device
-TPC = 8
-SBPDEV = 8
+TPC = 4
+SBPDEV = 2
 
 ARCH = EMPTY
 ifneq (, $(findstring soratka1,$(HOST)))
