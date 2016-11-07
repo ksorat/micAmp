@@ -41,7 +41,7 @@ ifeq "$(ARCH)" "PHI"
 	CCFLAGS += -DTPC=$(TPC) -DSBPDEV=$(SBPDEV)
 endif
 ifeq "$(ARCH)" "SMICHOST"
-	CCFLAGS = -O3 -qopenmp
+	CCFLAGS = -O3 -openmp
 	#CCFLAGS = -O3 -opt-report3 -openmp -g -opt-report-phase=offload -D DOPHI
 	CCFLAGS += -DNUMSBS=$(NUMSBS) -DTPSB=$(TPSB)
 endif
