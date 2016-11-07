@@ -1,14 +1,12 @@
 HOST=$(shell hostname)
-
-
-ARCH = EMPTY
+DOHOST = YES
 EXE = bin/amp.x
 CC = icc
 
 #Values of thread decomposition for NON-Phi runs
 #Number of simultaneous sub-blocks
 #Number of threads per sub-block
-NUMSBS = 2
+NUMSBS = 8
 TPSB = 4
 
 #Thread decomposition for Phi runs
@@ -17,6 +15,7 @@ TPSB = 4
 TPC = 4
 SBPDEV = 4
 
+ARCH = EMPTY
 ifneq (, $(findstring soratka1,$(HOST)))
 	ARCH = MAC
 endif
@@ -29,6 +28,9 @@ ifneq (, $(findstring ys,$(HOST)))
 	ARCH = YELLOWSTONE
 endif
 
+ifeq "$(DOHOST)" "YES"
+	ARCH = SMICHOST
+endif
 ifeq "$(ARCH)" "MAC"
 	CCFLAGS = -O3 -qopenmp -g -Wl,-stack_size,0x40000000,-stack_addr,0xf0000000
 	CCFLAGS += -DNUMSBS=$(NUMSBS) -DTPSB=$(TPSB)
@@ -37,6 +39,11 @@ ifeq "$(ARCH)" "PHI"
 	CCFLAGS = -O3 -qopenmp -opt-report-phase=offload -D DOPHI
 	#CCFLAGS = -O3 -opt-report3 -openmp -g -opt-report-phase=offload -D DOPHI
 	CCFLAGS += -DTPC=$(TPC) -DSBPDEV=$(SBPDEV)
+endif
+ifeq "$(ARCH)" "SMICHOST"
+	CCFLAGS = -O3 -qopenmp
+	#CCFLAGS = -O3 -opt-report3 -openmp -g -opt-report-phase=offload -D DOPHI
+	CCFLAGS += -DNUMSBS=$(NUMSBS) -DTPSB=$(TPSB)
 endif
 
 ifeq "$(ARCH)" "YELLOWSTONE"
