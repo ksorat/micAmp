@@ -1,5 +1,5 @@
 HOST=$(shell hostname)
-DOHOST = YES
+#DOHOST = YES
 EXE = bin/amp.x
 CC = icc
 
@@ -12,8 +12,8 @@ TPSB = 4
 #Thread decomposition for Phi runs
 #Threads/core on device (1-4)
 #Sub-blocks per device
-TPC = 4
-SBPDEV = 4
+TPC = 8
+SBPDEV = 8
 
 ARCH = EMPTY
 ifneq (, $(findstring soratka1,$(HOST)))
