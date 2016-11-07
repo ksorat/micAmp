@@ -49,8 +49,8 @@ typedef Real **** RealP4;
 // #define BY (4)
 // #define BZ (4)
 
-#define BX (4)
-#define BY (4)
+#define BX (1)
+#define BY (2)
 #define BZ (4)
 
 #define NXPBLK (NXP/BX)

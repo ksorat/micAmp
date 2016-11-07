@@ -13,7 +13,7 @@ TPSB = 4
 #Threads/core on device (1-4)
 #Sub-blocks per device
 TPC = 4
-SBPDEV = 15
+SBPDEV = 4
 
 ARCH = EMPTY
 ifneq (, $(findstring soratka1,$(HOST)))
