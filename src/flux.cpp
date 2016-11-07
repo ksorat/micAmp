@@ -40,7 +40,6 @@ void Flux_PLM(BlockCC W,BlockIC Fx,BlockIC Fy,BlockIC Fz,Block_S Block,Model_S M
 		for (n=0;n<Block.Nv;n++) {
 			for (k=Block.ksd+1;k<=Block.ked-1;k++) {
 				for (j=Block.jsd+1;j<=Block.jed-1;j++) {
-					#pragma omp simd
 					for (i=Block.isd+1;i<=Block.ied-1;i++) {
 
 						//Reconstruct profile to get *CELL* LR states
@@ -143,8 +142,8 @@ void LRs2Flux(BlockCC lW,BlockCC rW, BlockIC Flx, int d,  Block_S Grid, Model_S 
 				}
 
 				//Call Riemann solver
-				RiemannFluxHLLE(LeftW,RightW,FluxLR,Gam);
-				//RiemannFluxHLLC(LeftW,RightW,FluxLR,Gam);
+				//RiemannFluxHLLE(LeftW,RightW,FluxLR,Gam);
+				RiemannFluxHLLC(LeftW,RightW,FluxLR,Gam);
 
 				//Unpack into fluxes
 				//Untwist back to original coordinate system
