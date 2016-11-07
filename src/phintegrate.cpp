@@ -24,8 +24,8 @@ void AdvanceFluid(BlockCC State, Block_S Block, Model_S Model, Real dt) {
 
 	//Use half-step to get PLM fluxes
 	DEBUG_MSG("Calculating PLM fluxes\n");
-	//Flux_PLM(midState,Flux_x,Flux_y,Flux_z,Block,Model);
-	Flux_PCM(midState,Flux_x,Flux_y,Flux_z,Block,Model);
+	Flux_PLM(midState,Flux_x,Flux_y,Flux_z,Block,Model);
+	//Flux_PCM(midState,Flux_x,Flux_y,Flux_z,Block,Model);
 
 	//Use PLM fluxes to advance full timestep
 	DEBUG_MSG("Advancing full timestep\n");

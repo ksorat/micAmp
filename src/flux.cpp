@@ -40,6 +40,7 @@ void Flux_PLM(BlockCC W,BlockIC Fx,BlockIC Fy,BlockIC Fz,Block_S Block,Model_S M
 		for (n=0;n<Block.Nv;n++) {
 			for (k=Block.ksd+1;k<=Block.ked-1;k++) {
 				for (j=Block.jsd+1;j<=Block.jed-1;j++) {
+					#pragma omp simd
 					for (i=Block.isd+1;i<=Block.ied-1;i++) {
 
 						//Reconstruct profile to get *CELL* LR states
