@@ -1,4 +1,5 @@
-module swap intel/15.0.0
+#module swap intel/15.0.0
+module swap intel/14.0.2
 #module unload mvapich2/2.0/INTEL-14.0.2
 #module load impi
 
