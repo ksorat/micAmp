@@ -9,7 +9,7 @@ export MIC_ENV_PREFIX=MIC
 export MIC_OMP_NUM_THREADS=240
 export MIC_KMP_AFFINITY=granularity=fine,scatter
 export OFFLOAD_INIT=on_start
-export OFFLOAD_REPORT=2
+export OFFLOAD_REPORT=0
 export KMP_STACKSIZE=128M
 export MIC_KMP_STACKSIZE=32M
 export MIC_STACKSIZE=256M
